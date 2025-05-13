@@ -32,10 +32,26 @@ export async function DELETE(request) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
 
-    // Delete the associated image
-    const imageUrl = product.image?.url;
-    if (imageUrl) {
-      deleteFile(imageUrl);
+    // Collect all image URLs to delete (from images array and variants)
+    const imageUrls = [];
+
+    // Add URLs from the images array
+    if (product.images && product.images.length > 0) {
+      const imageUrlsFromArray = product.images.map(image => image.url).filter(url => url);
+      imageUrls.push(...imageUrlsFromArray);
+    }
+
+    // Add URLs from variants (if any)
+    if (product.variants && product.variants.length > 0) {
+      const variantImageUrls = product.variants
+        .map(variant => variant.image?.url)
+        .filter(url => url);
+      imageUrls.push(...variantImageUrls);
+    }
+
+    // Delete all associated images
+    if (imageUrls.length > 0) {
+      deleteFile(imageUrls); // deleteFile now accepts an array of URLs
     }
 
     // Delete the product from the database

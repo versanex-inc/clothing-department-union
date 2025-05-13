@@ -14,26 +14,58 @@ export async function PUT(request) {
     if (!token) return NextResponse.json({ error: 'No token found' }, { status: 401 });
     jwt.verify(token, process.env.JWT_SECRET);
 
-    let id, imageUrl, slug, title, productNumber, carName, file, starred;
+    let id, imageUrls = [], slug, title, description, price, colors, sizes, category, material, brand, stock, discount, gender, fit, sleeveLength, pattern, careInstructions, weight, tags, season, occasion, starred, files;
     const contentType = request.headers.get('content-type');
     if (contentType?.includes('multipart/form-data')) {
       const formData = await request.formData();
       id = formData.get('id');
-      file = formData.get('image');
-      imageUrl = file ? await saveFile(file) : formData.get('imageUrl') || '';
+      files = formData.getAll('images'); // Get all files under 'images' field
+      imageUrls = files.length > 0 ? await saveFile(files) : (formData.get('imageUrl') ? [formData.get('imageUrl')] : []);
       slug = formData.get('slug') || '';
       title = formData.get('title') || '';
-      productNumber = formData.get('productNumber') || '';
-      carName = formData.get('carName') || '';
+      description = formData.get('description') || '';
+      price = parseFloat(formData.get('price')) || undefined;
+      colors = formData.get('color') ? formData.get('color').split(',') : undefined;
+      sizes = formData.get('size') ? formData.get('size').split(',') : undefined;
+      category = formData.get('category') || '';
+      material = formData.get('material') || '';
+      brand = formData.get('brand') || '';
+      stock = parseInt(formData.get('stock')) || undefined;
+      discount = parseFloat(formData.get('discount')) || undefined;
+      gender = formData.get('gender') || '';
+      fit = formData.get('fit') || '';
+      sleeveLength = formData.get('sleeveLength') || '';
+      pattern = formData.get('pattern') || '';
+      careInstructions = formData.get('careInstructions') || '';
+      weight = parseFloat(formData.get('weight')) || undefined;
+      tags = formData.get('tags') ? formData.get('tags').split(',') : undefined;
+      season = formData.get('season') || '';
+      occasion = formData.get('occasion') || '';
       starred = formData.get('starred') === 'true' || false;
     } else {
       const body = await request.json();
       id = body.id;
-      imageUrl = body.imageUrl;
+      imageUrls = body.imageUrl ? [body.imageUrl] : (body.imageUrls || []);
       slug = body.slug || '';
       title = body.title || '';
-      productNumber = body.productNumber || '';
-      carName = body.carName || '';
+      description = body.description || '';
+      price = body.price !== undefined ? parseFloat(body.price) : undefined;
+      colors = body.color || undefined;
+      sizes = body.size || undefined;
+      category = body.category || '';
+      material = body.material || '';
+      brand = body.brand || '';
+      stock = body.stock !== undefined ? parseInt(body.stock) : undefined;
+      discount = body.discount !== undefined ? parseFloat(body.discount) : undefined;
+      gender = body.gender || '';
+      fit = body.fit || '';
+      sleeveLength = body.sleeveLength || '';
+      pattern = body.pattern || '';
+      careInstructions = body.careInstructions || '';
+      weight = body.weight !== undefined ? parseFloat(body.weight) : undefined;
+      tags = body.tags || undefined;
+      season = body.season || '';
+      occasion = body.occasion || '';
       starred = body.starred !== undefined ? body.starred : undefined;
     }
 
@@ -44,23 +76,45 @@ export async function PUT(request) {
     const existingProduct = await Product.findById(id);
     if (!existingProduct) return NextResponse.json({ error: 'Product not found' }, { status: 404 });
 
-    const oldImageUrl = existingProduct.image?.url || '';
+    // Collect old image URLs to delete if they are replaced
+    const oldImageUrls = existingProduct.images?.map(image => image.url) || [];
 
     const updateData = {};
-    const isImageUpdate = imageUrl !== undefined || file; // Check if image is being updated
+    const isImageUpdate = imageUrls.length > 0; // Check if images are being updated
     if (isImageUpdate) {
-      if (!slug || !title || !productNumber || !carName) {
-        return NextResponse.json({ error: 'All fields are required when updating image' }, { status: 400 });
-      }
-      updateData['image.url'] = imageUrl || '';
-      if (oldImageUrl && (imageUrl !== oldImageUrl || imageUrl === '')) {
-        deleteFile(oldImageUrl);
+      // Replace the entire images array with the new URLs
+      updateData.images = imageUrls.map(url => ({ url }));
+      // Delete old images if they are being replaced
+      if (oldImageUrls.length > 0) {
+        deleteFile(oldImageUrls);
       }
     }
     if (slug) updateData.slug = slug;
     if (title) updateData.title = title;
-    if (productNumber) updateData.productNumber = productNumber;
-    if (carName) updateData.carName = carName;
+    if (description) updateData.description = description;
+    if (price !== undefined) updateData.price = price;
+    if (colors) updateData.color = colors;
+    if (sizes) updateData.size = sizes;
+    if (category) updateData.category = category;
+    if (material) updateData.material = material;
+    if (brand !== undefined) updateData.brand = brand;
+    if (stock !== undefined) {
+      updateData.stock = stock;
+      updateData.isInStock = stock > 0;
+    }
+    if (discount !== undefined) {
+      updateData.discount = discount;
+      updateData.originalPrice = price !== undefined ? price : existingProduct.price;
+    }
+    if (gender) updateData.gender = gender;
+    if (fit) updateData.fit = fit;
+    if (sleeveLength) updateData.sleeveLength = sleeveLength;
+    if (pattern) updateData.pattern = pattern;
+    if (careInstructions) updateData.careInstructions = careInstructions;
+    if (weight !== undefined) updateData.weight = weight;
+    if (tags) updateData.tags = tags;
+    if (season) updateData.season = season;
+    if (occasion) updateData.occasion = occasion;
     if (starred !== undefined) updateData.starred = starred;
 
     // Ensure at least one field is being updated
@@ -80,6 +134,9 @@ export async function PUT(request) {
   } catch (error) {
     console.error('Error updating product:', error);
     if (error.code === 11000) return NextResponse.json({ error: 'Slug must be unique' }, { status: 400 });
+    if (error.name === 'ValidationError') {
+      return NextResponse.json({ error: Object.values(error.errors).map(err => err.message).join(', ') }, { status: 400 });
+    }
     if (error.message.includes('Only images') || error.message.includes('File size')) {
       return NextResponse.json({ error: error.message }, { status: 400 });
     }

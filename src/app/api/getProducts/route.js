@@ -15,7 +15,10 @@ export async function GET() {
 
     const products = await Product.find().sort({ createdAt: -1 });
 
-    return NextResponse.json({ products }, { status: 200 });
+    // Convert Mongoose documents to plain objects to ensure all fields are included
+    const productData = products.map(product => product.toObject());
+
+    return NextResponse.json({ products: productData }, { status: 200 });
   } catch (error) {
     console.error('Error fetching products:', error);
     return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 });

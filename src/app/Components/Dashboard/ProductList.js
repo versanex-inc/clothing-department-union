@@ -33,16 +33,19 @@ export default function ProductList() {
 
   const handleToggleStar = async (productId, currentStarred) => {
     try {
+      const data = new FormData();
+      data.append('id', productId);
+      data.append('starred', !currentStarred);
+
       const res = await fetch('/api/editProduct', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: productId, starred: !currentStarred }),
+        body: data,
       });
 
-      const data = await res.json();
+      const dataRes = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to update star status');
+        throw new Error(dataRes.error || 'Failed to update star status');
       }
 
       fetchProducts(); // Refresh the list after toggling star
@@ -84,8 +87,8 @@ export default function ProductList() {
                 <th className="p-3">Image</th>
                 <th className="p-3">Title</th>
                 <th className="p-3">Slug</th>
-                <th className="p-3">Product Number</th>
-                <th className="p-3">Car Name</th>
+                <th className="p-3">Price</th>
+                <th className="p-3">Category</th>
                 <th className="p-3">Starred</th>
                 <th className="p-3">Actions</th>
               </tr>
@@ -94,16 +97,20 @@ export default function ProductList() {
               {products.map((product) => (
                 <tr key={product._id} className="border-t border-gray-700 hover:bg-gray-800">
                   <td className="p-3">
-                    <img
-                      src={product.image.url}
-                      alt={product.title}
-                      className="w-16 h-16 object-cover rounded"
-                    />
+                    {product.images && product.images.length > 0 ? (
+                      <img
+                        src={product.images[0].url}
+                        alt={product.title}
+                        className="w-16 h-16 object-cover rounded"
+                      />
+                    ) : (
+                      <span className="text-gray-400">No image</span>
+                    )}
                   </td>
                   <td className="p-3">{product.title}</td>
                   <td className="p-3">{product.slug}</td>
-                  <td className="p-3">{product.productNumber}</td>
-                  <td className="p-3">{product.carName}</td>
+                  <td className="p-3">{product.price ? `$${product.price.toFixed(2)}` : 'N/A'}</td>
+                  <td className="p-3">{product.category || 'N/A'}</td>
                   <td className="p-3">
                     <button
                       onClick={() => handleToggleStar(product._id, product.starred)}

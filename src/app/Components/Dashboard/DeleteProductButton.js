@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react'; // Added useEffect for message timeout
 
 export default function DeleteProductButton({ productId, onProductDeleted }) {
   const [loading, setLoading] = useState(false);
@@ -34,8 +34,18 @@ export default function DeleteProductButton({ productId, onProductDeleted }) {
     }
   };
 
+  // Clear message after 3 seconds
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => {
+        setMessage(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
+
   return (
-    <div>
+    <div className="relative">
       <button
         onClick={handleDelete}
         className={`px-3 py-1 rounded text-white transition-all duration-300 ${
@@ -47,7 +57,7 @@ export default function DeleteProductButton({ productId, onProductDeleted }) {
       </button>
       {message && (
         <div
-          className={`mt-2 p-2 rounded text-sm ${
+          className={`mt-2 p-2 rounded text-sm absolute left-0 ${
             message.type === 'success' ? 'bg-green-600/20 text-green-400' : 'bg-red-600/20 text-red-400'
           }`}
         >

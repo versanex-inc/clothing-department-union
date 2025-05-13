@@ -20,11 +20,8 @@ export async function GET(request) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
 
-    // Ensure image field exists
-    const productData = {
-      ...product.toObject(),
-      image: product.image || { url: '' },
-    };
+    // Convert Mongoose document to plain object and ensure all fields are included
+    const productData = product.toObject();
 
     return NextResponse.json({ product: productData }, { status: 200 });
   } catch (error) {

@@ -5,31 +5,63 @@ import { useState, useEffect } from 'react';
 export default function EditProductForm({ product, onProductUpdated }) {
   const [formData, setFormData] = useState({
     id: product._id || '',
-    imageUrl: product.image?.url || '',
+    imageUrl: product.images?.[0]?.url || '', // Use first image URL as default
     slug: product.slug || '',
     title: product.title || '',
-    productNumber: product.productNumber || '',
-    carName: product.carName || '',
+    description: product.description || '',
+    price: product.price || '',
+    color: (product.color || []).join(',') || '',
+    size: (product.size || []).join(',') || '',
+    category: product.category || '',
+    material: product.material || '',
+    brand: product.brand || '',
+    stock: product.stock || '',
+    discount: product.discount || '',
+    gender: product.gender || '',
+    fit: product.fit || '',
+    sleeveLength: product.sleeveLength || '',
+    pattern: product.pattern || '',
+    careInstructions: product.careInstructions || '',
+    weight: product.weight || '',
+    tags: (product.tags || []).join(',') || '',
+    season: product.season || '',
+    occasion: product.occasion || '',
   });
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState([]); // Support multiple files
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setFormData({
       id: product._id || '',
-      imageUrl: product.image?.url || '',
+      imageUrl: product.images?.[0]?.url || '', // Use first image URL as default
       slug: product.slug || '',
       title: product.title || '',
-      productNumber: product.productNumber || '',
-      carName: product.carName || '',
+      description: product.description || '',
+      price: product.price || '',
+      color: (product.color || []).join(',') || '',
+      size: (product.size || []).join(',') || '',
+      category: product.category || '',
+      material: product.material || '',
+      brand: product.brand || '',
+      stock: product.stock || '',
+      discount: product.discount || '',
+      gender: product.gender || '',
+      fit: product.fit || '',
+      sleeveLength: product.sleeveLength || '',
+      pattern: product.pattern || '',
+      careInstructions: product.careInstructions || '',
+      weight: product.weight || '',
+      tags: (product.tags || []).join(',') || '',
+      season: product.season || '',
+      occasion: product.occasion || '',
     });
   }, [product]);
 
-  // Auto-generate title and slug from image filename
+  // Auto-generate title and slug from the first image filename
   useEffect(() => {
-    if (file) {
-      const fileName = file.name.replace(/\.[^/.]+$/, ''); // Remove extension
+    if (files.length > 0) {
+      const fileName = files[0].name.replace(/\.[^/.]+$/, ''); // Remove extension from the first file
       setFormData((prev) => ({
         ...prev,
         title: fileName,
@@ -39,10 +71,10 @@ export default function EditProductForm({ product, onProductUpdated }) {
           .replace(/[^a-z0-9-]/g, '') // Remove special characters
           .replace(/-+/g, '-'), // Replace multiple hyphens with a single hyphen
       }));
-    } else if (!file && !formData.imageUrl) {
+    } else if (files.length === 0 && !formData.imageUrl) {
       setFormData((prev) => ({ ...prev, title: '', slug: '' }));
     }
-  }, [file, formData.imageUrl]);
+  }, [files, formData.imageUrl]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -50,11 +82,11 @@ export default function EditProductForm({ product, onProductUpdated }) {
   };
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    setFiles(Array.from(e.target.files)); // Convert FileList to array
   };
 
   const handleDeleteImage = () => {
-    setFile(null);
+    setFiles([]);
     setFormData((prev) => ({ ...prev, imageUrl: '' }));
   };
 
@@ -64,36 +96,46 @@ export default function EditProductForm({ product, onProductUpdated }) {
     setLoading(true);
 
     try {
-      if (file) {
-        const data = new FormData();
-        data.append('id', formData.id);
-        data.append('image', file);
-        data.append('imageUrl', formData.imageUrl);
-        data.append('slug', formData.slug);
-        data.append('title', formData.title);
-        data.append('productNumber', formData.productNumber);
-        data.append('carName', formData.carName);
-
-        console.log('Sending FormData:');
-        for (let pair of data.entries()) {
-          console.log(`${pair[0]}: ${pair[1]}`);
-        }
-
-        const res = await fetch('/api/editProduct', { method: 'PUT', body: data });
-        const dataRes = await res.json();
-        if (!res.ok) throw new Error(dataRes.error || 'Failed to update product');
-        setMessage({ type: 'success', text: 'Product updated successfully!' });
-      } else {
-        const res = await fetch('/api/editProduct', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
+      const data = new FormData();
+      data.append('id', formData.id);
+      // Append multiple files if they exist
+      if (files.length > 0) {
+        files.forEach((file) => {
+          data.append('images', file); // Use 'images' to match API expectation
         });
-        const dataRes = await res.json();
-        if (!res.ok) throw new Error(dataRes.error || 'Failed to update product');
-        setMessage({ type: 'success', text: 'Product updated successfully!' });
+      }
+      // Append other form fields
+      data.append('imageUrl', formData.imageUrl);
+      data.append('slug', formData.slug);
+      data.append('title', formData.title);
+      data.append('description', formData.description);
+      data.append('price', formData.price);
+      data.append('color', formData.color); // Comma-separated string
+      data.append('size', formData.size); // Comma-separated string
+      data.append('category', formData.category);
+      data.append('material', formData.material);
+      data.append('brand', formData.brand);
+      data.append('stock', formData.stock);
+      data.append('discount', formData.discount);
+      data.append('gender', formData.gender);
+      data.append('fit', formData.fit);
+      data.append('sleeveLength', formData.sleeveLength);
+      data.append('pattern', formData.pattern);
+      data.append('careInstructions', formData.careInstructions);
+      data.append('weight', formData.weight);
+      data.append('tags', formData.tags); // Comma-separated string
+      data.append('season', formData.season);
+      data.append('occasion', formData.occasion);
+
+      console.log('Sending FormData:');
+      for (let pair of data.entries()) {
+        console.log(`${pair[0]}: ${pair[1]}`);
       }
 
+      const res = await fetch('/api/editProduct', { method: 'PUT', body: data });
+      const dataRes = await res.json();
+      if (!res.ok) throw new Error(dataRes.error || 'Failed to update product');
+      setMessage({ type: 'success', text: 'Product updated successfully!' });
       onProductUpdated();
     } catch (err) {
       setMessage({ type: 'error', text: err.message });
@@ -116,15 +158,16 @@ export default function EditProductForm({ product, onProductUpdated }) {
       )}
       <form onSubmit={handleSubmit} className="space-y-4" encType="multipart/form-data">
         <div>
-          <label htmlFor="image" className="block text-sm font-medium text-gray-200 mb-2">
-            Upload New Image
+          <label htmlFor="images" className="block text-sm font-medium text-gray-200 mb-2">
+            Upload New Images
           </label>
           <input
             type="file"
-            id="image"
-            name="image"
+            id="images"
+            name="images"
             accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
             onChange={handleFileChange}
+            multiple
             className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
             disabled={loading}
           />
@@ -142,10 +185,10 @@ export default function EditProductForm({ product, onProductUpdated }) {
               onChange={handleChange}
               className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
               placeholder="Enter image URL"
-              disabled={loading || file}
+              disabled={loading || files.length > 0}
             />
           </div>
-          {formData.imageUrl && !file && (
+          {(formData.imageUrl || product.images?.length > 0) && !files.length && (
             <button
               type="button"
               onClick={handleDeleteImage}
@@ -158,7 +201,7 @@ export default function EditProductForm({ product, onProductUpdated }) {
         </div>
         <div>
           <label htmlFor="title" className="block text-sm font-medium text-gray-200 mb-2">
-            Title (Auto-generated from image, editable)
+            Title (Auto-generated from first image, editable)
           </label>
           <input
             type="text"
@@ -167,46 +210,324 @@ export default function EditProductForm({ product, onProductUpdated }) {
             value={formData.title}
             onChange={handleChange}
             className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
-            placeholder="Title will auto-generate from image"
+            placeholder="Title will auto-generate from first image"
             required
             disabled={loading}
           />
         </div>
         <div>
-          <label htmlFor="productNumber" className="block text-sm font-medium text-gray-200 mb-2">
-            Product Number
+          <label htmlFor="description" className="block text-sm font-medium text-gray-200 mb-2">
+            Description
+          </label>
+          <textarea
+            id="description"
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
+            placeholder="Enter product description"
+            required
+            disabled={loading}
+            rows="4"
+          />
+        </div>
+        <div>
+          <label htmlFor="price" className="block text-sm font-medium text-gray-200 mb-2">
+            Price
           </label>
           <input
             type="number"
-            id="productNumber"
-            name="productNumber"
-            value={formData.productNumber}
+            id="price"
+            name="price"
+            value={formData.price}
             onChange={handleChange}
             className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
-            placeholder="Enter product number"
+            placeholder="Enter price"
             required
+            min="0"
+            step="0.01"
             disabled={loading}
           />
         </div>
         <div>
-          <label htmlFor="carName" className="block text-sm font-medium text-gray-200 mb-2">
-            Car Name
+          <label htmlFor="color" className="block text-sm font-medium text-gray-200 mb-2">
+            Colors (comma-separated, e.g., red,blue,green)
           </label>
           <input
             type="text"
-            id="carName"
-            name="carName"
-            value={formData.carName}
+            id="color"
+            name="color"
+            value={formData.color}
             onChange={handleChange}
             className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
-            placeholder="Enter car name"
+            placeholder="Enter colors (e.g., red,blue,green)"
             required
             disabled={loading}
           />
         </div>
         <div>
+          <label htmlFor="size" className="block text-sm font-medium text-gray-200 mb-2">
+            Sizes (comma-separated, e.g., S,M,L)
+          </label>
+          <input
+            type="text"
+            id="size"
+            name="size"
+            value={formData.size}
+            onChange={handleChange}
+            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
+            placeholder="Enter sizes (e.g., S,M,L)"
+            required
+            disabled={loading}
+          />
+        </div>
+        <div>
+          <label htmlFor="category" className="block text-sm font-medium text-gray-200 mb-2">
+            Category
+          </label>
+          <select
+            id="category"
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
+            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
+            required
+            disabled={loading}
+          >
+            <option value="">Select category</option>
+            <option value="shirts">Shirts</option>
+            <option value="t-shirts">T-Shirts</option>
+            <option value="pants">Pants</option>
+            <option value="jackets">Jackets</option>
+            <option value="accessories">Accessories</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="material" className="block text-sm font-medium text-gray-200 mb-2">
+            Material
+          </label>
+          <input
+            type="text"
+            id="material"
+            name="material"
+            value={formData.material}
+            onChange={handleChange}
+            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
+            placeholder="Enter material (e.g., cotton, polyester)"
+            required
+            disabled={loading}
+          />
+        </div>
+        <div>
+          <label htmlFor="brand" className="block text-sm font-medium text-gray-200 mb-2">
+            Brand (optional)
+          </label>
+          <input
+            type="text"
+            id="brand"
+            name="brand"
+            value={formData.brand}
+            onChange={handleChange}
+            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
+            placeholder="Enter brand name"
+            disabled={loading}
+          />
+        </div>
+        <div>
+          <label htmlFor="stock" className="block text-sm font-medium text-gray-200 mb-2">
+            Stock (optional)
+          </label>
+          <input
+            type="number"
+            id="stock"
+            name="stock"
+            value={formData.stock}
+            onChange={handleChange}
+            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
+            placeholder="Enter stock quantity"
+            min="0"
+            disabled={loading}
+          />
+        </div>
+        <div>
+          <label htmlFor="discount" className="block text-sm font-medium text-gray-200 mb-2">
+            Discount (%) (optional)
+          </label>
+          <input
+            type="number"
+            id="discount"
+            name="discount"
+            value={formData.discount}
+            onChange={handleChange}
+            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
+            placeholder="Enter discount percentage"
+            min="0"
+            max="100"
+            disabled={loading}
+          />
+        </div>
+        <div>
+          <label htmlFor="gender" className="block text-sm font-medium text-gray-200 mb-2">
+            Gender
+          </label>
+          <select
+            id="gender"
+            name="gender"
+            value={formData.gender}
+            onChange={handleChange}
+            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
+            required
+            disabled={loading}
+          >
+            <option value="">Select gender</option>
+            <option value="men">Men</option>
+            <option value="women">Women</option>
+            <option value="unisex">Unisex</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="fit" className="block text-sm font-medium text-gray-200 mb-2">
+            Fit (optional)
+          </label>
+          <select
+            id="fit"
+            name="fit"
+            value={formData.fit}
+            onChange={handleChange}
+            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
+            disabled={loading}
+          >
+            <option value="">Select fit</option>
+            <option value="slim">Slim</option>
+            <option value="regular">Regular</option>
+            <option value="loose">Loose</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="sleeveLength" className="block text-sm font-medium text-gray-200 mb-2">
+            Sleeve Length (optional)
+          </label>
+          <select
+            id="sleeveLength"
+            name="sleeveLength"
+            value={formData.sleeveLength}
+            onChange={handleChange}
+            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
+            disabled={loading}
+          >
+            <option value="">Select sleeve length</option>
+            <option value="short sleeve">Short Sleeve</option>
+            <option value="long sleeve">Long Sleeve</option>
+            <option value="sleeveless">Sleeveless</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="pattern" className="block text-sm font-medium text-gray-200 mb-2">
+            Pattern (optional)
+          </label>
+          <select
+            id="pattern"
+            name="pattern"
+            value={formData.pattern}
+            onChange={handleChange}
+            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
+            disabled={loading}
+          >
+            <option value="">Select pattern</option>
+            <option value="solid">Solid</option>
+            <option value="striped">Striped</option>
+            <option value="checkered">Checkered</option>
+            <option value="printed">Printed</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="careInstructions" className="block text-sm font-medium text-gray-200 mb-2">
+            Care Instructions (optional)
+          </label>
+          <input
+            type="text"
+            id="careInstructions"
+            name="careInstructions"
+            value={formData.careInstructions}
+            onChange={handleChange}
+            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
+            placeholder="Enter care instructions (e.g., machine washable)"
+            disabled={loading}
+          />
+        </div>
+        <div>
+          <label htmlFor="weight" className="block text-sm font-medium text-gray-200 mb-2">
+            Weight (grams) (optional)
+          </label>
+          <input
+            type="number"
+            id="weight"
+            name="weight"
+            value={formData.weight}
+            onChange={handleChange}
+            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
+            placeholder="Enter weight in grams"
+            min="0"
+            disabled={loading}
+          />
+        </div>
+        <div>
+          <label htmlFor="tags" className="block text-sm font-medium text-gray-200 mb-2">
+            Tags (comma-separated, e.g., casual,formal,summer) (optional)
+          </label>
+          <input
+            type="text"
+            id="tags"
+            name="tags"
+            value={formData.tags}
+            onChange={handleChange}
+            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
+            placeholder="Enter tags (e.g., casual,formal,summer)"
+            disabled={loading}
+          />
+        </div>
+        <div>
+          <label htmlFor="season" className="block text-sm font-medium text-gray-200 mb-2">
+            Season (optional)
+          </label>
+          <select
+            id="season"
+            name="season"
+            value={formData.season}
+            onChange={handleChange}
+            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
+            disabled={loading}
+          >
+            <option value="">Select season</option>
+            <option value="winter">Winter</option>
+            <option value="summer">Summer</option>
+            <option value="spring">Spring</option>
+            <option value="fall">Fall</option>
+            <option value="all seasons">All Seasons</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="occasion" className="block text-sm font-medium text-gray-200 mb-2">
+            Occasion (optional)
+          </label>
+          <select
+            id="occasion"
+            name="occasion"
+            value={formData.occasion}
+            onChange={handleChange}
+            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
+            disabled={loading}
+          >
+            <option value="">Select occasion</option>
+            <option value="casual">Casual</option>
+            <option value="formal">Formal</option>
+            <option value="party">Party</option>
+            <option value="sportswear">Sportswear</option>
+          </select>
+        </div>
+        <div>
           <label htmlFor="slug" className="block text-sm font-medium text-gray-200 mb-2">
-            Slug (Auto-generated from image, editable)
+            Slug (Auto-generated from first image, editable)
           </label>
           <input
             type="text"
@@ -215,7 +536,7 @@ export default function EditProductForm({ product, onProductUpdated }) {
             value={formData.slug}
             onChange={handleChange}
             className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
-            placeholder="Slug will auto-generate from image"
+            placeholder="Slug will auto-generate from first image"
             required
             disabled={loading}
           />
