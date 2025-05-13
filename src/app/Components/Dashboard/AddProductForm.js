@@ -1,535 +1,235 @@
+/* eslint-disable react/no-unescaped-entities */
 "use client";
+import { useState, useEffect } from "react";
+import Link from "next/link";
 
-import { useState, useEffect } from 'react';
+export default function ClientNav() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
 
-export default function AddProductForm() {
-  const [formData, setFormData] = useState({
-    imageUrl: '',
-    slug: '',
-    title: '',
-    description: '',
-    price: '',
-    color: '',
-    size: '',
-    category: '',
-    material: '',
-    brand: '',
-    stock: '',
-    discount: '',
-    gender: '',
-    fit: '',
-    sleeveLength: '',
-    pattern: '',
-    careInstructions: '',
-    weight: '',
-    tags: '',
-    season: '',
-    occasion: '',
-  });
-  const [files, setFiles] = useState([]); // Support multiple files
-  const [message, setMessage] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  // Auto-generate title and slug from the first image filename
   useEffect(() => {
-    if (files.length > 0) {
-      const fileName = files[0].name.replace(/\.[^/.]+$/, ''); // Remove extension from the first file
-      setFormData((prev) => ({
-        ...prev,
-        title: fileName,
-        slug: fileName
-          .toLowerCase()
-          .replace(/\s+/g, '-') // Replace spaces with hyphens
-          .replace(/[^a-z0-9-]/g, '') // Remove special characters
-          .replace(/-+/g, '-'), // Replace multiple hyphens with a single hyphen
-      }));
-    } else if (files.length === 0 && !formData.imageUrl) {
-      setFormData((prev) => ({ ...prev, title: '', slug: '' }));
-    }
-  }, [files, formData.imageUrl]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleFileChange = (e) => {
-    setFiles(Array.from(e.target.files)); // Convert FileList to array
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setMessage(null);
-    setLoading(true);
-
-    try {
-      const data = new FormData();
-      // Append multiple files if they exist
-      if (files.length > 0) {
-        files.forEach((file) => {
-          data.append('images', file); // Use 'images' to match API expectation
-        });
+    const handleSmoothScroll = (e) => {
+      e.preventDefault();
+      const href = e.target.getAttribute("href");
+      if (href?.startsWith("#")) {
+        const sectionId = href.slice(1);
+        const element = document.getElementById(sectionId);
+        if (element) {
+          const offset = 80;
+          const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+          window.scrollTo({
+            top: elementPosition - offset,
+            behavior: "smooth",
+          });
+        }
+        setIsMobileMenuOpen(false);
       }
-      // Append other form fields
-      data.append('imageUrl', formData.imageUrl);
-      data.append('slug', formData.slug);
-      data.append('title', formData.title);
-      data.append('description', formData.description);
-      data.append('price', formData.price);
-      data.append('color', formData.color); // Comma-separated string
-      data.append('size', formData.size); // Comma-separated string
-      data.append('category', formData.category);
-      data.append('material', formData.material);
-      data.append('brand', formData.brand);
-      data.append('stock', formData.stock);
-      data.append('discount', formData.discount);
-      data.append('gender', formData.gender);
-      data.append('fit', formData.fit);
-      data.append('sleeveLength', formData.sleeveLength);
-      data.append('pattern', formData.pattern);
-      data.append('careInstructions', formData.careInstructions);
-      data.append('weight', formData.weight);
-      data.append('tags', formData.tags); // Comma-separated string
-      data.append('season', formData.season);
-      data.append('occasion', formData.occasion);
+    };
 
-      console.log('Sending FormData:');
-      for (let pair of data.entries()) {
-        console.log(`${pair[0]}: ${pair[1]}`);
-      }
+    const anchorLinks = document.querySelectorAll('a[href^="#"]');
+    anchorLinks.forEach(link => {
+      link.addEventListener("click", handleSmoothScroll);
+    });
 
-      const res = await fetch('/api/addProduct', { method: 'POST', body: data });
-      const dataRes = await res.json();
-      if (!res.ok) throw new Error(dataRes.error || 'Failed to add product');
-      setMessage({ type: 'success', text: 'Product added successfully!' });
-
-      // Reset form
-      setFormData({
-        imageUrl: '',
-        slug: '',
-        title: '',
-        description: '',
-        price: '',
-        color: '',
-        size: '',
-        category: '',
-        material: '',
-        brand: '',
-        stock: '',
-        discount: '',
-        gender: '',
-        fit: '',
-        sleeveLength: '',
-        pattern: '',
-        careInstructions: '',
-        weight: '',
-        tags: '',
-        season: '',
-        occasion: '',
+    return () => {
+      anchorLinks.forEach(link => {
+        link.removeEventListener("click", handleSmoothScroll);
       });
-      setFiles([]);
-    } catch (err) {
-      setMessage({ type: 'error', text: err.message });
-    } finally {
-      setLoading(false);
-    }
+    };
+  }, []);
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    // Search functionality will be handled in the shop page
   };
+
+  const categories = ["Anime", "Casual", "Trending", "Memes", "Sports"];
 
   return (
-    <div className="bg-gray-900/80 p-6 rounded-lg shadow-xl border border-gray-700">
-      <h3 className="text-xl font-semibold text-white mb-4">Add New Product</h3>
-      {message && (
-        <div
-          className={`mb-4 p-3 rounded ${
-            message.type === 'success' ? 'bg-green-600/20 text-green-400' : 'bg-red-600/20 text-red-400'
-          }`}
+    <>
+      <nav className="w-full max-w-screen-2xl mx-auto flex justify-between items-center px-6 py-5 fixed top-0 z-50 bg-black border-b border-white/10">
+        {/* Logo */}
+        <Link href="/" className="text-3xl font-bold text-white hover:scale-105 transition-transform duration-300">
+          ClothCraft
+        </Link>
+
+        {/* Desktop Menu */}
+        <div className="hidden md:flex items-center space-x-6">
+          {/* Search Bar */}
+          <div className="relative">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={handleSearchChange}
+              placeholder="Search products..."
+              className="bg-white/10 text-white placeholder-white/50 border border-white/20 rounded-full py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all duration-300"
+            />
+            <svg
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/50"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+
+          {/* Shop Link */}
+          <Link
+            href="/shop"
+            className="text-white hover:text-gray-300 transition-all duration-300 font-medium text-sm uppercase tracking-widest relative group"
+          >
+            Shop
+            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-white group-hover:w-full transition-all duration-300" />
+          </Link>
+
+          {/* Category Dropdown */}
+          <div className="relative">
+            <Link
+              href="#categories"
+              onMouseEnter={() => setIsCategoryOpen(true)}
+              onMouseLeave={() => setIsCategoryOpen(false)}
+              className="text-white hover:text-gray-300 transition-all duration-300 font-medium text-sm uppercase tracking-widest relative group"
+            >
+              Category
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-white group-hover:w-full transition-all duration-300" />
+            </Link>
+            {isCategoryOpen && (
+              <div
+                className="absolute top-full left-0 mt-2 w-48 bg-black border border-white/20 rounded-lg shadow-lg z-50"
+                onMouseEnter={() => setIsCategoryOpen(true)}
+                onMouseLeave={() => setIsCategoryOpen(false)}
+              >
+                {categories.map((category) => (
+                  <Link
+                    key={category}
+                    href={`#categories?filter=${category.toLowerCase()}`}
+                    className="block px-4 py-2 text-white hover:bg-white/10 transition-all duration-200"
+                  >
+                    {category}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* WhatsApp Button */}
+          <a
+            href="https://wa.me/923457778536?text=Hi%20ClothCraft,%20I%27m%20interested%20in%20your%20t-shirt%20products."
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-white text-black px-4 py-2 rounded-full font-medium text-sm transition-all duration-300 hover:bg-gray-300 hover:scale-105 flex items-center gap-2 animate-pulse"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.296-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+            </svg>
+            Chat
+          </a>
+        </div>
+
+        {/* Mobile Menu Button */}
+        <button
+          className="md:hidden text-white hover:text-gray-300 transition-all duration-300"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
-          {message.text}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-8 w-8"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            {isMobileMenuOpen ? (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            ) : (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            )}
+          </svg>
+        </button>
+      </nav>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 top-[80px] bg-black z-40 md:hidden">
+          <div className="flex flex-col items-center gap-6 py-8">
+            {/* Search Bar (Mobile) */}
+            <div className="relative w-3/4">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={handleSearchChange}
+                placeholder="Search products..."
+                className="w-full bg-white/10 text-white placeholder-white/50 border border-white/20 rounded-full py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all duration-300"
+              />
+              <svg
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/50"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+
+            {/* Shop Link */}
+            <Link
+              href="/shop"
+              className="text-white hover:text-gray-300 transition-all duration-300 font-medium text-lg uppercase tracking-widest"
+            >
+              Shop
+            </Link>
+
+            {/* Category Dropdown (Mobile) */}
+            <div className="relative">
+              <button
+                onClick={() => setIsCategoryOpen(!isCategoryOpen)}
+                className="text-white hover:text-gray-300 transition-all duration-300 font-medium text-lg uppercase tracking-widest flex items-center"
+              >
+                Category
+                <svg
+                  className="ml-2 h-4 w-4 transition-transform duration-300"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              {isCategoryOpen && (
+                <div className="mt-2 flex flex-col items-center gap-2">
+                  {categories.map((category) => (
+                    <Link
+                      key={category}
+                      href={`#categories?filter=${category.toLowerCase()}`}
+                      onClick={() => setIsCategoryOpen(false)}
+                      className="text-white hover:text-gray-300 transition-all duration-200 text-sm"
+                    >
+                      {category}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* WhatsApp Button */}
+            <a
+              href="https://wa.me/923457778536?text=Hi%20ClothCraft,%20I%27m%20interested%20in%20your%20t-shirt%20products."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-white text-black px-6 py-2 rounded-full font-medium text-base transition-all duration-300 hover:bg-gray-300 hover:scale-105 flex items-center gap-3 animate-pulse"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.296-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+              </svg>
+              Chat
+            </a>
+          </div>
         </div>
       )}
-      <form onSubmit={handleSubmit} className="space-y-4" encType="multipart/form-data">
-        <div>
-          <label htmlFor="images" className="block text-sm font-medium text-gray-200 mb-2">
-            Upload Images
-          </label>
-          <input
-            type="file"
-            id="images"
-            name="images"
-            accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
-            onChange={handleFileChange}
-            multiple
-            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
-            disabled={loading}
-          />
-        </div>
-        <div>
-          <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-200 mb-2">
-            Or Enter Image URL (for single image)
-          </label>
-          <input
-            type="text"
-            id="imageUrl"
-            name="imageUrl"
-            value={formData.imageUrl}
-            onChange={handleChange}
-            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
-            placeholder="Enter image URL"
-            disabled={loading || files.length > 0}
-          />
-        </div>
-        <div>
-          <label htmlFor="title" className="block text-sm font-medium text-gray-200 mb-2">
-            Title (Auto-generated from first image, editable)
-          </label>
-          <input
-            type="text"
-            id="title"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
-            placeholder="Title will auto-generate from first image"
-            required
-            disabled={loading}
-          />
-        </div>
-        <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-200 mb-2">
-            Description
-          </label>
-          <textarea
-            id="description"
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
-            placeholder="Enter product description"
-            required
-            disabled={loading}
-            rows="4"
-          />
-        </div>
-        <div>
-          <label htmlFor="price" className="block text-sm font-medium text-gray-200 mb-2">
-            Price
-          </label>
-          <input
-            type="number"
-            id="price"
-            name="price"
-            value={formData.price}
-            onChange={handleChange}
-            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
-            placeholder="Enter price"
-            required
-            min="0"
-            step="0.01"
-            disabled={loading}
-          />
-        </div>
-        <div>
-          <label htmlFor="color" className="block text-sm font-medium text-gray-200 mb-2">
-            Colors (comma-separated, e.g., red,blue,green)
-          </label>
-          <input
-            type="text"
-            id="color"
-            name="color"
-            value={formData.color}
-            onChange={handleChange}
-            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
-            placeholder="Enter colors (e.g., red,blue,green)"
-            required
-            disabled={loading}
-          />
-        </div>
-        <div>
-          <label htmlFor="size" className="block text-sm font-medium text-gray-200 mb-2">
-            Sizes (comma-separated, e.g., S,M,L)
-          </label>
-          <input
-            type="text"
-            id="size"
-            name="size"
-            value={formData.size}
-            onChange={handleChange}
-            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
-            placeholder="Enter sizes (e.g., S,M,L)"
-            required
-            disabled={loading}
-          />
-        </div>
-        <div>
-          <label htmlFor="category" className="block text-sm font-medium text-gray-200 mb-2">
-            Category
-          </label>
-          <select
-            id="category"
-            name="category"
-            value={formData.category}
-            onChange={handleChange}
-            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
-            required
-            disabled={loading}
-          >
-            <option value="">Select category</option>
-            <option value="shirts">Shirts</option>
-            <option value="t-shirts">T-Shirts</option>
-            <option value="pants">Pants</option>
-            <option value="jackets">Jackets</option>
-            <option value="accessories">Accessories</option>
-          </select>
-        </div>
-        <div>
-          <label htmlFor="material" className="block text-sm font-medium text-gray-200 mb-2">
-            Material
-          </label>
-          <input
-            type="text"
-            id="material"
-            name="material"
-            value={formData.material}
-            onChange={handleChange}
-            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
-            placeholder="Enter material (e.g., cotton, polyester)"
-            required
-            disabled={loading}
-          />
-        </div>
-        <div>
-          <label htmlFor="brand" className="block text-sm font-medium text-gray-200 mb-2">
-            Brand (optional)
-          </label>
-          <input
-            type="text"
-            id="brand"
-            name="brand"
-            value={formData.brand}
-            onChange={handleChange}
-            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
-            placeholder="Enter brand name"
-            disabled={loading}
-          />
-        </div>
-        <div>
-          <label htmlFor="stock" className="block text-sm font-medium text-gray-200 mb-2">
-            Stock (optional)
-          </label>
-          <input
-            type="number"
-            id="stock"
-            name="stock"
-            value={formData.stock}
-            onChange={handleChange}
-            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
-            placeholder="Enter stock quantity"
-            min="0"
-            disabled={loading}
-          />
-        </div>
-        <div>
-          <label htmlFor="discount" className="block text-sm font-medium text-gray-200 mb-2">
-            Discount (%) (optional)
-          </label>
-          <input
-            type="number"
-            id="discount"
-            name="discount"
-            value={formData.discount}
-            onChange={handleChange}
-            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
-            placeholder="Enter discount percentage"
-            min="0"
-            max="100"
-            disabled={loading}
-          />
-        </div>
-        <div>
-          <label htmlFor="gender" className="block text-sm font-medium text-gray-200 mb-2">
-            Gender
-          </label>
-          <select
-            id="gender"
-            name="gender"
-            value={formData.gender}
-            onChange={handleChange}
-            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
-            required
-            disabled={loading}
-          >
-            <option value="">Select gender</option>
-            <option value="men">Men</option>
-            <option value="women">Women</option>
-            <option value="unisex">Unisex</option>
-          </select>
-        </div>
-        <div>
-          <label htmlFor="fit" className="block text-sm font-medium text-gray-200 mb-2">
-            Fit (optional)
-          </label>
-          <select
-            id="fit"
-            name="fit"
-            value={formData.fit}
-            onChange={handleChange}
-            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
-            disabled={loading}
-          >
-            <option value="">Select fit</option>
-            <option value="slim">Slim</option>
-            <option value="regular">Regular</option>
-            <option value="loose">Loose</option>
-          </select>
-        </div>
-        <div>
-          <label htmlFor="sleeveLength" className="block text-sm font-medium text-gray-200 mb-2">
-            Sleeve Length (optional)
-          </label>
-          <select
-            id="sleeveLength"
-            name="sleeveLength"
-            value={formData.sleeveLength}
-            onChange={handleChange}
-            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
-            disabled={loading}
-          >
-            <option value="">Select sleeve length</option>
-            <option value="short sleeve">Short Sleeve</option>
-            <option value="long sleeve">Long Sleeve</option>
-            <option value="sleeveless">Sleeveless</option>
-          </select>
-        </div>
-        <div>
-          <label htmlFor="pattern" className="block text-sm font-medium text-gray-200 mb-2">
-            Pattern (optional)
-          </label>
-          <select
-            id="pattern"
-            name="pattern"
-            value={formData.pattern}
-            onChange={handleChange}
-            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
-            disabled={loading}
-          >
-            <option value="">Select pattern</option>
-            <option value="solid">Solid</option>
-            <option value="striped">Striped</option>
-            <option value="checkered">Checkered</option>
-            <option value="printed">Printed</option>
-          </select>
-        </div>
-        <div>
-          <label htmlFor="careInstructions" className="block text-sm font-medium text-gray-200 mb-2">
-            Care Instructions (optional)
-          </label>
-          <input
-            type="text"
-            id="careInstructions"
-            name="careInstructions"
-            value={formData.careInstructions}
-            onChange={handleChange}
-            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
-            placeholder="Enter care instructions (e.g., machine washable)"
-            disabled={loading}
-          />
-        </div>
-        <div>
-          <label htmlFor="weight" className="block text-sm font-medium text-gray-200 mb-2">
-            Weight (grams) (optional)
-          </label>
-          <input
-            type="number"
-            id="weight"
-            name="weight"
-            value={formData.weight}
-            onChange={handleChange}
-            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
-            placeholder="Enter weight in grams"
-            min="0"
-            disabled={loading}
-          />
-        </div>
-        <div>
-          <label htmlFor="tags" className="block text-sm font-medium text-gray-200 mb-2">
-            Tags (comma-separated, e.g., casual,formal,summer) (optional)
-          </label>
-          <input
-            type="text"
-            id="tags"
-            name="tags"
-            value={formData.tags}
-            onChange={handleChange}
-            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
-            placeholder="Enter tags (e.g., casual,formal,summer)"
-            disabled={loading}
-          />
-        </div>
-        <div>
-          <label htmlFor="season" className="block text-sm font-medium text-gray-200 mb-2">
-            Season (optional)
-          </label>
-          <select
-            id="season"
-            name="season"
-            value={formData.season}
-            onChange={handleChange}
-            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
-            disabled={loading}
-          >
-            <option value="">Select season</option>
-            <option value="winter">Winter</option>
-            <option value="summer">Summer</option>
-            <option value="spring">Spring</option>
-            <option value="fall">Fall</option>
-            <option value="all seasons">All Seasons</option>
-          </select>
-        </div>
-        <div>
-          <label htmlFor="occasion" className="block text-sm font-medium text-gray-200 mb-2">
-            Occasion (optional)
-          </label>
-          <select
-            id="occasion"
-            name="occasion"
-            value={formData.occasion}
-            onChange={handleChange}
-            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
-            disabled={loading}
-          >
-            <option value="">Select occasion</option>
-            <option value="casual">Casual</option>
-            <option value="formal">Formal</option>
-            <option value="party">Party</option>
-            <option value="sportswear">Sportswear</option>
-          </select>
-        </div>
-        <div>
-          <label htmlFor="slug" className="block text-sm font-medium text-gray-200 mb-2">
-            Slug (Auto-generated from first image, editable)
-          </label>
-          <input
-            type="text"
-            id="slug"
-            name="slug"
-            value={formData.slug}
-            onChange={handleChange}
-            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
-            placeholder="Slug will auto-generate from first image"
-            required
-            disabled={loading}
-          />
-        </div>
-        <button
-          type="submit"
-          className={`w-full p-3 rounded font-medium text-base text-white transition-all duration-300 ${
-            loading ? 'bg-gray-600 cursor-not-allowed' : 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 hover:shadow-xl hover:shadow-red-600/40 hover:-translate-y-1'
-          }`}
-          disabled={loading}
-        >
-          {loading ? 'Adding...' : 'Add Product'}
-        </button>
-      </form>
-    </div>
+    </>
   );
 }

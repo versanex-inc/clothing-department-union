@@ -20,7 +20,7 @@ const productsSchema = new mongoose.Schema({
       sku: String // Unique SKU for this variant
     }
   ],
-  category: { type: String, required: true, enum: ['shirts', 't-shirts', 'pants', 'jackets', 'accessories'] },
+  category: { type: String, required: true, enum: ['Anime', 'Trending', 'Casual', 'Memes', 'Sports'] },
   material: { type: String, required: true },
   brand: { type: String },
   stock: { type: Number, default: 0, min: 0 }, // Total stock (can be used if not using variants)

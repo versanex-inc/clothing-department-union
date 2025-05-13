@@ -295,11 +295,11 @@ export default function EditProductForm({ product, onProductUpdated }) {
             disabled={loading}
           >
             <option value="">Select category</option>
-            <option value="shirts">Shirts</option>
-            <option value="t-shirts">T-Shirts</option>
-            <option value="pants">Pants</option>
-            <option value="jackets">Jackets</option>
-            <option value="accessories">Accessories</option>
+            <option value="Anime">Anime</option>
+            <option value="Casual">Casual</option>
+            <option value="Memes">Memes</option>
+            <option value="Trending">Trending</option>
+            <option value="Sports">Sports</option>
           </select>
         </div>
         <div>
