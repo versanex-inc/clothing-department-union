@@ -105,7 +105,6 @@ const Reviews = () => {
         {isLoading ? (
           <div className="h-64 flex items-center justify-center">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-14 w-14 border-t-4 border-b-4 border-red-600 mx-auto shadow-[0_0_10px_rgba(255,0,0,0.3)]"></div>
               <p className="text-gray-200 mt-4 uppercase tracking-wide text-sm">Loading Reviews...</p>
             </div>
           </div>
