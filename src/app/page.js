@@ -3,6 +3,7 @@
 import Categories from "./Components/Home/Categories";
 import FeaturedProducts from "./Components/Home/FeaturedProducts";
 import RecentProducts from "./Components/Home/RecentProducts";
+import Reviews from "./Components/Home/Reviews";
 import SpecialOffers from "./Components/Home/SpecialOffers";
 
 export default function Home() {
@@ -16,6 +17,8 @@ export default function Home() {
       <SpecialOffers/>
       {/* Recent Product  */}
       <RecentProducts/>
+      {/* Reviews  */}
+      <Reviews/>
     </div>
   );
 }
