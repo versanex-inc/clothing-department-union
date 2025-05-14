@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 
 export default function Categories() {
   const categories = ["Anime", "Casual", "Trending", "Memes", "Sports"];
@@ -32,7 +32,11 @@ export default function Categories() {
           {categories.map((category) => (
             <Link
               key={category}
-              href={`#categories?filter=${category.toLowerCase()}`}
+              href={`/shop/#${category}`} // Updated to match /shop/#Anime format
+              onClick={(e) => {
+                e.preventDefault(); // Prevent full page reload
+                window.location.href = `/shop/#${category}`; // Ensure hash navigation
+              }}
               className="group relative w-full h-24 sm:h-28 flex items-center justify-center bg-gradient-to-br from-gray-900 to-black border border-gray-800 rounded-lg overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
             >
               <span className="text-base sm:text-lg font-medium uppercase tracking-tight text-gray-200 group-hover:text-white transition-colors duration-300 whitespace-nowrap overflow-hidden text-ellipsis">
