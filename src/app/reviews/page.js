@@ -1,16 +1,24 @@
-"use client"
+"use client";
 import React, { useState, useEffect } from "react";
 
 const ReviewsPage = () => {
-  const [reviews, setReviews] = useState([
-    { name: "Ayesha Khan", quote: "Amazing quality and fast delivery! Highly satisfied.", rating: 5 },
-    { name: "Hassan Ahmed", quote: "Great variety and trendy designs. Will shop again!", rating: 4 },
-    { name: "Sara Malik", quote: "Excellent service and products. Highly recommend!", rating: 5 },
-    { name: "Ali Raza", quote: "Fast shipping and good quality clothes.", rating: 4 },
-  ]);
+  const [reviews, setReviews] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [newReview, setNewReview] = useState({ name: "", quote: "", rating: 0 });
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const res = await fetch("/api/getReviews?approved=true");
+        const data = await res.json();
+        if (data.reviews) setReviews(data.reviews);
+      } catch (error) {
+        console.error("Error fetching reviews:", error);
+      }
+    };
+    fetchReviews();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -20,16 +28,31 @@ const ReviewsPage = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (newReview.name && newReview.quote && newReview.rating > 0) {
-      setReviews((prev) => [...prev, { ...newReview, rating: newReview.rating }]);
-      setNewReview({ name: "", quote: "", rating: 0 });
-      setShowForm(false);
-      setMessage("Review added successfully!");
-      setTimeout(() => setMessage(""), 3000);
-    } else {
-      setMessage("Please fill all fields and select a rating.");
+    if (!newReview.name || !newReview.quote || !newReview.rating || newReview.rating < 1 || newReview.rating > 5) {
+      setMessage("Please fill all fields and select a rating between 1 and 5.");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/addReview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newReview),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setNewReview({ name: "", quote: "", rating: 0 });
+        setShowForm(false);
+        setMessage("Review submitted for approval!");
+        setTimeout(() => setMessage(""), 3000);
+      } else {
+        setMessage(data.error || "Failed to submit review.");
+      }
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      setMessage("Failed to submit review.");
     }
   };
 

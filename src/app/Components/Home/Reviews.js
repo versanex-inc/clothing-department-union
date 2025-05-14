@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from "react";
 import Slider from "react-slick";
 import { useRouter } from "next/navigation";
@@ -5,12 +6,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
 const Reviews = () => {
-  const [reviews, setReviews] = useState([
-    { name: "Ayesha Khan", quote: "Amazing quality and fast delivery! Highly satisfied.", rating: 5 },
-    { name: "Hassan Ahmed", quote: "Great variety and trendy designs. Will shop again!", rating: 4 },
-    { name: "Sara Malik", quote: "Excellent service and products. Highly recommend!", rating: 5 },
-    { name: "Ali Raza", quote: "Fast shipping and good quality clothes.", rating: 4 },
-  ]);
+  const [reviews, setReviews] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [newReview, setNewReview] = useState({ name: "", quote: "", rating: 0 });
   const [message, setMessage] = useState("");
@@ -18,10 +14,18 @@ const Reviews = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
-    return () => clearTimeout(timer);
+    const fetchReviews = async () => {
+      try {
+        const res = await fetch("/api/getReviews?approved=true");
+        const data = await res.json();
+        if (data.reviews) setReviews(data.reviews);
+      } catch (error) {
+        console.error("Error fetching reviews:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchReviews();
   }, []);
 
   const handleInputChange = (e) => {
@@ -32,25 +36,40 @@ const Reviews = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (newReview.name && newReview.quote && newReview.rating > 0) {
-      setReviews((prev) => [...prev, { ...newReview, rating: newReview.rating }]);
-      setNewReview({ name: "", quote: "", rating: 0 });
-      setShowForm(false);
-      setMessage("Review added successfully!");
-      setTimeout(() => setMessage(""), 3000);
-    } else {
-      setMessage("Please fill all fields and select a rating.");
+    if (!newReview.name || !newReview.quote || !newReview.rating || newReview.rating < 1 || newReview.rating > 5) {
+      setMessage("Please fill all fields and select a rating between 1 and 5.");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/addReview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newReview),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setNewReview({ name: "", quote: "", rating: 0 });
+        setShowForm(false);
+        setMessage("Review submitted for approval!");
+        setTimeout(() => setMessage(""), 3000);
+      } else {
+        setMessage(data.error || "Failed to submit review.");
+      }
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      setMessage("Failed to submit review.");
     }
   };
 
   const settings = {
     dots: false,
-    infinite: true,
-    autoplay: true,
+    infinite: reviews.length > 3,
+    autoplay: reviews.length > 3,
     speed: 1000,
-    slidesToShow: 3,
+    slidesToShow: Math.min(reviews.length, 3),
     slidesToScroll: 1,
     arrows: false,
     autoplaySpeed: 3000,
@@ -63,14 +82,14 @@ const Reviews = () => {
       {
         breakpoint: 768,
         settings: {
-          slidesToShow: 1,
+          slidesToShow: Math.min(reviews.length, 1),
           slidesToScroll: 1,
         },
       },
       {
         breakpoint: 1024,
         settings: {
-          slidesToShow: 2,
+          slidesToShow: Math.min(reviews.length, 2),
           slidesToScroll: 1,
         },
       },
@@ -86,14 +105,14 @@ const Reviews = () => {
         {isLoading ? (
           <div className="h-64 flex items-center justify-center">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-red-600 mx-auto"></div>
-              <p className="text-gray-200 mt-4">Loading...</p>
+              <div className="animate-spin rounded-full h-14 w-14 border-t-4 border-b-4 border-red-600 mx-auto shadow-[0_0_10px_rgba(255,0,0,0.3)]"></div>
+              <p className="text-gray-200 mt-4 uppercase tracking-wide text-sm">Loading Reviews...</p>
             </div>
           </div>
         ) : reviews.length > 0 ? (
           <Slider {...settings}>
             {reviews.map((review, index) => (
-              <div key={index} className="px-2">
+              <div key={review._id || index} className="px-2">
                 <div className="bg-gradient-to-br from-gray-900 to-black border border-gray-800 rounded-lg p-6 hover:shadow-[0_0_10px_rgba(255,255,255,0.1)] hover:-translate-y-1 transition-all duration-300">
                   <div className="flex justify-center mb-3">
                     {[...Array(review.rating)].map((_, i) => (
