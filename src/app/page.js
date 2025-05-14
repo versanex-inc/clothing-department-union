@@ -2,6 +2,7 @@
 "use client";
 import Categories from "./Components/Home/Categories";
 import FeaturedProducts from "./Components/Home/FeaturedProducts";
+import SpecialOffers from "./Components/Home/SpecialOffers";
 
 export default function Home() {
   return (
@@ -10,6 +11,8 @@ export default function Home() {
       <Categories />
       {/* Featured Products  */}
       <FeaturedProducts/>
+      {/* Special Offers  */}
+      <SpecialOffers/>
     </div>
   );
 }
