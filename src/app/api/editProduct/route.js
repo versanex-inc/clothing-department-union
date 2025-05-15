@@ -1,9 +1,9 @@
-import { connectionStr } from '@/utils/db';
-import { Product } from '@/utils/models/product';
 import mongoose from 'mongoose';
 import { NextResponse } from 'next/server';
-import { saveFile, deleteFile } from '@/utils/saveFile';
 import jwt from 'jsonwebtoken';
+import { connectionStr } from '@/utils/db';
+import { Product } from '@/utils/models/product';
+import { deleteFile, saveFile } from '@/utils/saveFile';
 
 export async function PUT(request) {
   try {
@@ -14,17 +14,18 @@ export async function PUT(request) {
     if (!token) return NextResponse.json({ error: 'No token found' }, { status: 401 });
     jwt.verify(token, process.env.JWT_SECRET);
 
-    let id, imageUrls = [], slug, title, description, price, colors, sizes, category, material, brand, stock, discount, gender, fit, sleeveLength, pattern, careInstructions, weight, tags, season, occasion, starred, files;
+    let id, imageUrls = [], slug, title, description, price, originalPrice, colors, sizes, category, material, brand, stock, discount, gender, fit, sleeveLength, pattern, careInstructions, weight, tags, season, occasion, starred, ratings, reviews, isInStock, soldCount, files;
     const contentType = request.headers.get('content-type');
     if (contentType?.includes('multipart/form-data')) {
       const formData = await request.formData();
       id = formData.get('id');
-      files = formData.getAll('images'); // Get all files under 'images' field
+      files = formData.getAll('images');
       imageUrls = files.length > 0 ? await saveFile(files) : (formData.get('imageUrl') ? [formData.get('imageUrl')] : []);
       slug = formData.get('slug') || '';
       title = formData.get('title') || '';
       description = formData.get('description') || '';
       price = parseFloat(formData.get('price')) || undefined;
+      originalPrice = parseFloat(formData.get('originalPrice')) || undefined;
       colors = formData.get('color') ? formData.get('color').split(',') : undefined;
       sizes = formData.get('size') ? formData.get('size').split(',') : undefined;
       category = formData.get('category') || '';
@@ -42,6 +43,10 @@ export async function PUT(request) {
       season = formData.get('season') || '';
       occasion = formData.get('occasion') || '';
       starred = formData.get('starred') === 'true' || false;
+      ratings = parseFloat(formData.get('ratings')) || undefined;
+      reviews = parseInt(formData.get('reviews')) || undefined;
+      isInStock = formData.get('isInStock') === 'true' || undefined;
+      soldCount = parseInt(formData.get('soldCount')) || undefined;
     } else {
       const body = await request.json();
       id = body.id;
@@ -50,6 +55,7 @@ export async function PUT(request) {
       title = body.title || '';
       description = body.description || '';
       price = body.price !== undefined ? parseFloat(body.price) : undefined;
+      originalPrice = body.originalPrice !== undefined ? parseFloat(body.originalPrice) : undefined;
       colors = body.color || undefined;
       sizes = body.size || undefined;
       category = body.category || '';
@@ -67,6 +73,10 @@ export async function PUT(request) {
       season = body.season || '';
       occasion = body.occasion || '';
       starred = body.starred !== undefined ? body.starred : undefined;
+      ratings = body.ratings !== undefined ? parseFloat(body.ratings) : undefined;
+      reviews = body.reviews !== undefined ? parseInt(body.reviews) : undefined;
+      isInStock = body.isInStock !== undefined ? body.isInStock : undefined;
+      soldCount = body.soldCount !== undefined ? parseInt(body.soldCount) : undefined;
     }
 
     if (!id) {
@@ -80,11 +90,9 @@ export async function PUT(request) {
     const oldImageUrls = existingProduct.images?.map(image => image.url) || [];
 
     const updateData = {};
-    const isImageUpdate = imageUrls.length > 0; // Check if images are being updated
+    const isImageUpdate = imageUrls.length > 0;
     if (isImageUpdate) {
-      // Replace the entire images array with the new URLs
       updateData.images = imageUrls.map(url => ({ url }));
-      // Delete old images if they are being replaced
       if (oldImageUrls.length > 0) {
         deleteFile(oldImageUrls);
       }
@@ -93,6 +101,7 @@ export async function PUT(request) {
     if (title) updateData.title = title;
     if (description) updateData.description = description;
     if (price !== undefined) updateData.price = price;
+    if (originalPrice !== undefined) updateData.originalPrice = originalPrice;
     if (colors) updateData.color = colors;
     if (sizes) updateData.size = sizes;
     if (category) updateData.category = category;
@@ -104,7 +113,7 @@ export async function PUT(request) {
     }
     if (discount !== undefined) {
       updateData.discount = discount;
-      updateData.originalPrice = price !== undefined ? price : existingProduct.price;
+      updateData.originalPrice = originalPrice !== undefined ? originalPrice : (price !== undefined ? price : existingProduct.price);
     }
     if (gender) updateData.gender = gender;
     if (fit) updateData.fit = fit;
@@ -116,8 +125,11 @@ export async function PUT(request) {
     if (season) updateData.season = season;
     if (occasion) updateData.occasion = occasion;
     if (starred !== undefined) updateData.starred = starred;
+    if (ratings !== undefined) updateData.ratings = ratings;
+    if (reviews !== undefined) updateData.reviews = reviews;
+    if (isInStock !== undefined) updateData.isInStock = isInStock;
+    if (soldCount !== undefined) updateData.soldCount = soldCount;
 
-    // Ensure at least one field is being updated
     if (Object.keys(updateData).length === 0) {
       return NextResponse.json({ error: 'No fields provided to update' }, { status: 400 });
     }

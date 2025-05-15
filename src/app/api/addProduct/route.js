@@ -1,9 +1,9 @@
-import { connectionStr } from '@/utils/db';
-import { Product } from '@/utils/models/product';
 import mongoose from 'mongoose';
 import { NextResponse } from 'next/server';
-import { saveFile, deleteFile } from '@/utils/saveFile';
 import jwt from 'jsonwebtoken';
+import { connectionStr } from '@/utils/db';
+import { Product } from '@/utils/models/product';
+import { saveFile } from '@/utils/saveFile';
 
 export async function POST(request) {
   try {
@@ -14,7 +14,7 @@ export async function POST(request) {
     if (!token) return NextResponse.json({ error: 'No token found' }, { status: 401 });
     jwt.verify(token, process.env.JWT_SECRET);
 
-    let imageUrls = [], slug, title, description, price, colors, sizes, category, material, brand, stock, discount, gender, fit, sleeveLength, pattern, careInstructions, weight, tags, season, occasion;
+    let imageUrls = [], slug, title, description, price, originalPrice, colors, sizes, category, material, brand, stock, discount, gender, fit, sleeveLength, pattern, careInstructions, weight, tags, season, occasion, ratings, reviews, isInStock, starred, soldCount;
     const contentType = request.headers.get('content-type');
     if (contentType?.includes('multipart/form-data')) {
       const formData = await request.formData();
@@ -24,6 +24,7 @@ export async function POST(request) {
       title = formData.get('title') || '';
       description = formData.get('description') || '';
       price = parseFloat(formData.get('price')) || 0;
+      originalPrice = parseFloat(formData.get('originalPrice')) || price; // Default to price if not provided
       colors = formData.get('color') ? formData.get('color').split(',') : [];
       sizes = formData.get('size') ? formData.get('size').split(',') : [];
       category = formData.get('category') || '';
@@ -40,6 +41,11 @@ export async function POST(request) {
       tags = formData.get('tags') ? formData.get('tags').split(',') : [];
       season = formData.get('season') || '';
       occasion = formData.get('occasion') || '';
+      ratings = parseFloat(formData.get('ratings')) || 0;
+      reviews = parseInt(formData.get('reviews')) || 0;
+      isInStock = formData.get('isInStock') ? formData.get('isInStock') === 'true' : stock > 0;
+      starred = formData.get('starred') ? formData.get('starred') === 'true' : false;
+      soldCount = parseInt(formData.get('soldCount')) || 0;
     } else {
       const body = await request.json();
       imageUrls = body.imageUrl ? [body.imageUrl] : (body.imageUrls || []);
@@ -47,6 +53,7 @@ export async function POST(request) {
       title = body.title || '';
       description = body.description || '';
       price = body.price || 0;
+      originalPrice = body.originalPrice || price; // Default to price if not provided
       colors = body.color || [];
       sizes = body.size || [];
       category = body.category || '';
@@ -63,6 +70,11 @@ export async function POST(request) {
       tags = body.tags || [];
       season = body.season || '';
       occasion = body.occasion || '';
+      ratings = body.ratings || 0;
+      reviews = body.reviews || 0;
+      isInStock = body.isInStock !== undefined ? body.isInStock : stock > 0;
+      starred = body.starred !== undefined ? body.starred : false;
+      soldCount = body.soldCount || 0;
     }
 
     // Validate required fields
@@ -74,10 +86,10 @@ export async function POST(request) {
     const newProduct = new Product({
       title,
       description,
-      images: imageUrls.map(url => ({ url })), // Map URLs to array of objects
+      images: imageUrls.map(url => ({ url })),
       slug,
       price,
-      originalPrice: price, // Set originalPrice to price if no discount
+      originalPrice,
       color: colors,
       size: sizes,
       category,
@@ -94,11 +106,11 @@ export async function POST(request) {
       tags,
       season,
       occasion,
-      isInStock: stock > 0, // Set isInStock based on stock value
-      starred: false, // Default value as per schema
-      soldCount: 0, // Default value as per schema
-      ratings: 0, // Default value as per schema
-      reviews: 0, // Default value as per schema
+      ratings,
+      reviews,
+      isInStock,
+      starred,
+      soldCount,
     });
 
     const savedProduct = await newProduct.save();

@@ -5,11 +5,12 @@ import { useState, useEffect } from 'react';
 export default function EditProductForm({ product, onProductUpdated }) {
   const [formData, setFormData] = useState({
     id: product._id || '',
-    imageUrl: product.images?.[0]?.url || '', // Use first image URL as default
+    imageUrl: product.images?.[0]?.url || '',
     slug: product.slug || '',
     title: product.title || '',
     description: product.description || '',
     price: product.price || '',
+    originalPrice: product.originalPrice || '',
     color: (product.color || []).join(',') || '',
     size: (product.size || []).join(',') || '',
     category: product.category || '',
@@ -26,19 +27,25 @@ export default function EditProductForm({ product, onProductUpdated }) {
     tags: (product.tags || []).join(',') || '',
     season: product.season || '',
     occasion: product.occasion || '',
+    starred: product.starred || false,
+    ratings: product.ratings || '',
+    reviews: product.reviews || '',
+    isInStock: product.isInStock || true,
+    soldCount: product.soldCount || '',
   });
-  const [files, setFiles] = useState([]); // Support multiple files
+  const [files, setFiles] = useState([]);
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setFormData({
       id: product._id || '',
-      imageUrl: product.images?.[0]?.url || '', // Use first image URL as default
+      imageUrl: product.images?.[0]?.url || '',
       slug: product.slug || '',
       title: product.title || '',
       description: product.description || '',
       price: product.price || '',
+      originalPrice: product.originalPrice || '',
       color: (product.color || []).join(',') || '',
       size: (product.size || []).join(',') || '',
       category: product.category || '',
@@ -55,34 +62,46 @@ export default function EditProductForm({ product, onProductUpdated }) {
       tags: (product.tags || []).join(',') || '',
       season: product.season || '',
       occasion: product.occasion || '',
+      starred: product.starred || false,
+      ratings: product.ratings || '',
+      reviews: product.reviews || '',
+      isInStock: product.isInStock || true,
+      soldCount: product.soldCount || '',
     });
   }, [product]);
 
-  // Auto-generate title and slug from the first image filename
   useEffect(() => {
     if (files.length > 0) {
-      const fileName = files[0].name.replace(/\.[^/.]+$/, ''); // Remove extension from the first file
+      const fileName = files[0].name.replace(/\.[^/.]+$/, '');
+      const title = fileName
+        .replace(/[-_]/g, ' ')
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ');
+      const slug = fileName
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '')
+        .replace(/-+/g, '-');
+
       setFormData((prev) => ({
         ...prev,
-        title: fileName,
-        slug: fileName
-          .toLowerCase()
-          .replace(/\s+/g, '-') // Replace spaces with hyphens
-          .replace(/[^a-z0-9-]/g, '') // Remove special characters
-          .replace(/-+/g, '-'), // Replace multiple hyphens with a single hyphen
+        title: prev.title || title,
+        slug: prev.slug || slug,
       }));
-    } else if (files.length === 0 && !formData.imageUrl) {
-      setFormData((prev) => ({ ...prev, title: '', slug: '' }));
     }
-  }, [files, formData.imageUrl]);
+  }, [files]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
   };
 
   const handleFileChange = (e) => {
-    setFiles(Array.from(e.target.files)); // Convert FileList to array
+    setFiles(Array.from(e.target.files));
   };
 
   const handleDeleteImage = () => {
@@ -98,20 +117,17 @@ export default function EditProductForm({ product, onProductUpdated }) {
     try {
       const data = new FormData();
       data.append('id', formData.id);
-      // Append multiple files if they exist
       if (files.length > 0) {
-        files.forEach((file) => {
-          data.append('images', file); // Use 'images' to match API expectation
-        });
+        files.forEach((file) => data.append('images', file));
       }
-      // Append other form fields
       data.append('imageUrl', formData.imageUrl);
       data.append('slug', formData.slug);
       data.append('title', formData.title);
       data.append('description', formData.description);
       data.append('price', formData.price);
-      data.append('color', formData.color); // Comma-separated string
-      data.append('size', formData.size); // Comma-separated string
+      data.append('originalPrice', formData.originalPrice);
+      data.append('color', formData.color);
+      data.append('size', formData.size);
       data.append('category', formData.category);
       data.append('material', formData.material);
       data.append('brand', formData.brand);
@@ -123,14 +139,14 @@ export default function EditProductForm({ product, onProductUpdated }) {
       data.append('pattern', formData.pattern);
       data.append('careInstructions', formData.careInstructions);
       data.append('weight', formData.weight);
-      data.append('tags', formData.tags); // Comma-separated string
+      data.append('tags', formData.tags);
       data.append('season', formData.season);
       data.append('occasion', formData.occasion);
-
-      console.log('Sending FormData:');
-      for (let pair of data.entries()) {
-        console.log(`${pair[0]}: ${pair[1]}`);
-      }
+      data.append('starred', formData.starred);
+      data.append('ratings', formData.ratings);
+      data.append('reviews', formData.reviews);
+      data.append('isInStock', formData.isInStock);
+      data.append('soldCount', formData.soldCount);
 
       const res = await fetch('/api/editProduct', { method: 'PUT', body: data });
       const dataRes = await res.json();
@@ -244,6 +260,23 @@ export default function EditProductForm({ product, onProductUpdated }) {
             className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
             placeholder="Enter price"
             required
+            min="0"
+            step="0.01"
+            disabled={loading}
+          />
+        </div>
+        <div>
+          <label htmlFor="originalPrice" className="block text-sm font-medium text-gray-200 mb-2">
+            Original Price (optional)
+          </label>
+          <input
+            type="number"
+            id="originalPrice"
+            name="originalPrice"
+            value={formData.originalPrice}
+            onChange={handleChange}
+            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
+            placeholder="Enter original price"
             min="0"
             step="0.01"
             disabled={loading}
@@ -524,6 +557,86 @@ export default function EditProductForm({ product, onProductUpdated }) {
             <option value="party">Party</option>
             <option value="sportswear">Sportswear</option>
           </select>
+        </div>
+        <div>
+          <label htmlFor="ratings" className="block text-sm font-medium text-gray-200 mb-2">
+            Ratings (0-5) (optional)
+          </label>
+          <input
+            type="number"
+            id="ratings"
+            name="ratings"
+            value={formData.ratings}
+            onChange={handleChange}
+            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
+            placeholder="Enter ratings (0-5)"
+            min="0"
+            max="5"
+            step="0.1"
+            disabled={loading}
+          />
+        </div>
+        <div>
+          <label htmlFor="reviews" className="block text-sm font-medium text-gray-200 mb-2">
+            Reviews (optional)
+          </label>
+          <input
+            type="number"
+            id="reviews"
+            name="reviews"
+            value={formData.reviews}
+            onChange={handleChange}
+            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
+            placeholder="Enter number of reviews"
+            min="0"
+            disabled={loading}
+          />
+        </div>
+        <div>
+          <label htmlFor="isInStock" className="block text-sm font-medium text-gray-200 mb-2">
+            In Stock
+          </label>
+          <input
+            type="checkbox"
+            id="isInStock"
+            name="isInStock"
+            checked={formData.isInStock}
+            onChange={handleChange}
+            className="mr-2 leading-tight"
+            disabled={loading}
+          />
+          <span className="text-gray-300">Check if in stock</span>
+        </div>
+        <div>
+          <label htmlFor="starred" className="block text-sm font-medium text-gray-200 mb-2">
+            Starred
+          </label>
+          <input
+            type="checkbox"
+            id="starred"
+            name="starred"
+            checked={formData.starred}
+            onChange={handleChange}
+            className="mr-2 leading-tight"
+            disabled={loading}
+          />
+          <span className="text-gray-300">Feature this product</span>
+        </div>
+        <div>
+          <label htmlFor="soldCount" className="block text-sm font-medium text-gray-200 mb-2">
+            Sold Count (optional)
+          </label>
+          <input
+            type="number"
+            id="soldCount"
+            name="soldCount"
+            value={formData.soldCount}
+            onChange={handleChange}
+            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
+            placeholder="Enter sold count"
+            min="0"
+            disabled={loading}
+          />
         </div>
         <div>
           <label htmlFor="slug" className="block text-sm font-medium text-gray-200 mb-2">
