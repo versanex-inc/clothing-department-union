@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 
@@ -121,16 +121,9 @@ const ShopPage = () => {
                         <p className="text-gray-500 line-through text-sm">PKR {product.originalPrice}</p>
                       )}
                     </div>
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        // Add Buy Now logic here (e.g., add to cart or redirect to checkout)
-                        alert(`Buying ${product.title} now!`);
-                      }}
-                      className="mt-3 w-full px-6 py-2 bg-gradient-to-br from-gray-800 to-black border border-gray-700 rounded-full font-medium text-sm text-gray-200 hover:text-white hover:shadow-[0_0_10px_rgba(255,255,255,0.1)] hover:-translate-y-1 transition-all duration-300"
-                    >
+                    <div className="mt-3 w-full px-6 py-2 bg-gradient-to-br from-gray-800 to-black border border-gray-700 rounded-full font-medium text-sm text-gray-200 hover:text-white hover:shadow-[0_0_10px_rgba(255,255,255,0.1)] hover:-translate-y-1 transition-all duration-300">
                       Buy Now
-                    </button>
+                    </div>
                   </div>
                 </Link>
               ))}

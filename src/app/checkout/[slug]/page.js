@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { ShoppingBag, Palette, Ruler, Package } from 'lucide-react';
 
 export default function CheckoutPage() {
   const { slug } = useParams();
@@ -136,29 +137,71 @@ export default function CheckoutPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Product Summary (Left) */}
-            <div className="bg-gradient-to-br from-gray-900 to-black p-6 rounded-lg border border-gray-700">
-              <h2 className="text-xl font-bold text-gray-200 mb-4">Order Summary</h2>
-              <div className="flex items-start space-x-4">
-                <Image
-                  src={selectedImageUrl} // Use the passed image URL
-                  alt={productTitle}
-                  width={120}
-                  height={150}
-                  className="object-cover rounded-md"
-                />
-                <div>
-                  <h3 className="text-lg font-medium text-white">{productTitle}</h3>
-                  <p className="text-gray-400 mt-1">Price: PKR {price}</p>
-                  <p className="text-gray-400 mt-1">Quantity: {quantity}</p>
-                  <p className="text-gray-400 mt-1">Color: {selectedColor}</p>
-                  <p className="text-gray-400 mt-1">Size: {selectedSize}</p>
-                  <p className="mt-2 text-white font-semibold">Subtotal: PKR {subtotal}</p>
+            <div className="bg-gradient-to-br from-gray-900 to-black p-6 rounded-lg border border-gray-700 shadow-lg">
+              <h2 className="text-xl font-bold text-gray-200 mb-4 flex items-center">
+                <ShoppingBag className="w-6 h-6 mr-2" /> Order Summary
+              </h2>
+              <div className="flex flex-col space-y-4">
+                {/* Product Image and Basic Info */}
+                <div className="flex items-start space-x-4">
+                  <Image
+                    src={selectedImageUrl}
+                    alt={productTitle}
+                    width={150}
+                    height={180}
+                    className="object-cover rounded-md border border-gray-600"
+                  />
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-white uppercase">{productTitle}</h3>
+                    <p className="text-gray-400 mt-1">Brand: {product.brand || 'N/A'}</p>
+                    <p className="text-gray-400 mt-1">Category: {product.category || 'N/A'}</p>
+                  </div>
+                </div>
+
+                {/* Product Details */}
+                <div className="border-t border-gray-700 pt-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex items-center">
+                      <Palette className="w-5 h-5 mr-2 text-gray-400" />
+                      <p className="text-gray-400">Color: <span className="text-white">{selectedColor}</span></p>
+                    </div>
+                    <div className="flex items-center">
+                      <Ruler className="w-5 h-5 mr-2 text-gray-400" />
+                      <p className="text-gray-400">Size: <span className="text-white">{selectedSize}</span></p>
+                    </div>
+                    <div className="flex items-center">
+                      <Package className="w-5 h-5 mr-2 text-gray-400" />
+                      <p className="text-gray-400">Quantity: <span className="text-white">{quantity}</span></p>
+                    </div>
+                    <div className="flex items-center">
+                      <p className="text-gray-400">Material: <span className="text-white">{product.material || 'N/A'}</span></p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Price Breakdown */}
+                <div className="border-t border-gray-700 pt-4">
+                  <h4 className="text-md font-semibold text-gray-200 mb-2">Price Breakdown</h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-gray-400">
+                      <span>Price per Item:</span>
+                      <span>PKR {price}</span>
+                    </div>
+                    <div className="flex justify-between text-gray-400">
+                      <span>Quantity:</span>
+                      <span>{quantity}</span>
+                    </div>
+                    <div className="flex justify-between text-white font-semibold">
+                      <span>Total:</span>
+                      <span>PKR {subtotal}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Form (Right) */}
-            <div className="bg-gradient-to-br from-gray-900 to-black p-6 rounded-lg border border-gray-700">
+            <div className="bg-gradient-to-br from-gray-900 to-black p-6 rounded-lg border border-gray-700 shadow-lg">
               <h2 className="text-xl font-bold text-gray-200 mb-4">Shipping Information</h2>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
@@ -207,6 +250,10 @@ export default function CheckoutPage() {
                   <label className="block text-gray-200 mb-1">Payment Method</label>
                   <div className="p-3 bg-gray-800 border border-gray-700 rounded-md text-gray-200">
                     Cash on Delivery (COD)
+                  </div>
+                  {/* Subtotal Display */}
+                  <div className="mt-2 p-3 bg-gray-700 rounded-md text-white font-semibold">
+                    Subtotal: PKR {subtotal}
                   </div>
                 </div>
 
