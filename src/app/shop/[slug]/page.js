@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -82,7 +82,6 @@ export default function ProductPage() {
     return `bg-${safeColor}-500 border-${safeColor}-700`;
   };
 
-  // Get the selected image URL
   const selectedImageUrl = product.images && product.images.length > 0
     ? (product.images[selectedImage]?.url || product.images[0].url)
     : '/placeholder.svg';
@@ -174,9 +173,14 @@ export default function ProductPage() {
 
             <div className="flex items-center space-x-4">
               {product.originalPrice > product.price && (
-                <span className="text-gray-400 line-through">PKR {product.originalPrice}</span>
+                <span className="text-gray-400 line-through text-lg">PKR {product.originalPrice}</span>
               )}
-              <span className="text-xl font-bold text-white">PKR {product.price}</span>
+              <span className="text-2xl font-bold text-white">PKR {product.price}</span>
+              {discountPercentage > 0 && (
+                <span className="bg-gradient-to-br from-gray-900 to-black text-white text-sm font-semibold px-2 py-1 rounded-full border border-gray-700">
+                  {discountPercentage}% OFF
+                </span>
+              )}
             </div>
 
             <div className="space-y-4">
@@ -222,7 +226,7 @@ export default function ProductPage() {
             {discountPercentage > 0 && (
               <div className="flex items-center">
                 <span className="mr-2 flex h-3 w-3 rounded-full bg-gray-200"></span>
-                <span className="text-gray-200">{discountPercentage}% Off. Discount applied in cart.</span>
+                <span className="text-gray-200">Discount applied in cart.</span>
               </div>
             )}
 
