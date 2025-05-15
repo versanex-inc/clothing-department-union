@@ -69,6 +69,11 @@ export default function DashboardLayout({ children }) {
               Manage Reviews
             </span>
           </Link>
+          <Link href="/dashboard/manageOrders">
+            <span className="text-white hover:text-red-500 transition-all duration-300 cursor-pointer">
+              Manage Orders
+            </span>
+          </Link>
         </nav>
         <button
           onClick={handleLogout}

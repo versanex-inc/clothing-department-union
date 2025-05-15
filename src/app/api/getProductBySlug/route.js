@@ -15,17 +15,14 @@ export async function GET(request) {
       return NextResponse.json({ error: 'Slug is required' }, { status: 400 });
     }
 
-    const product = await Product.findOne({ slug: { $regex: new RegExp(slug, 'i') } });
+    const product = await Product.findOne({ slug });
     if (!product) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
 
-    // Convert Mongoose document to plain object and ensure all fields are included
-    const productData = product.toObject();
-
-    return NextResponse.json({ product: productData }, { status: 200 });
+    return NextResponse.json({ product }, { status: 200 });
   } catch (error) {
-    console.error('Error fetching product by slug:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('Error fetching product:', error);
+    return NextResponse.json({ error: 'Failed to fetch product' }, { status: 500 });
   }
 }

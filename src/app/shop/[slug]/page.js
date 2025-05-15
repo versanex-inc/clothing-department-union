@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -77,15 +77,18 @@ export default function ProductPage() {
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) 
     : 0;
 
-  // Dynamic color mapping function based on fetched color
   const getColorClass = (color) => {
     const safeColor = color.toLowerCase().replace(/[^a-z]/g, '');
     return `bg-${safeColor}-500 border-${safeColor}-700`;
   };
 
+  // Get the selected image URL
+  const selectedImageUrl = product.images && product.images.length > 0
+    ? (product.images[selectedImage]?.url || product.images[0].url)
+    : '/placeholder.svg';
+
   return (
     <div className="flex min-h-screen flex-col bg-black text-white">
-      {/* Breadcrumb */}
       <div className="container mx-auto px-4 py-4">
         <nav className="text-sm">
           <ol className="flex flex-wrap items-center space-x-2">
@@ -106,13 +109,10 @@ export default function ProductPage() {
         </nav>
       </div>
 
-      {/* Product section */}
       <div className="container mx-auto px-4 py-6">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-          {/* Product gallery (left column on desktop) */}
           <div className="flex flex-col">
             <div className="flex">
-              {/* Thumbnails (desktop: vertical on left, mobile: 3+ columns under main image) */}
               <div className="mr-4 hidden flex-col space-y-4 md:flex">
                 {product.images && product.images.map((image, index) => (
                   <button 
@@ -131,7 +131,6 @@ export default function ProductPage() {
                 ))}
               </div>
 
-              {/* Main image */}
               <div className={`relative flex-1 bg-gradient-to-br from-gray-900 to-black border ${getColorClass(selectedColor)} mb-4`}>
                 {product.images && product.images.length > 0 ? (
                   <Image
@@ -149,7 +148,6 @@ export default function ProductPage() {
               </div>
             </div>
 
-            {/* Thumbnails (mobile: 3+ columns under main image) */}
             <div className="flex flex-wrap justify-center gap-4 md:hidden">
               {product.images && product.images.map((image, index) => (
                 <button 
@@ -169,7 +167,6 @@ export default function ProductPage() {
             </div>
           </div>
 
-          {/* Product details (right column on desktop, full-width on mobile) */}
           <div className="flex flex-col space-y-6">
             <h1 className="text-3xl font-bold tracking-wide text-white uppercase">{product.title}</h1>
 
@@ -246,7 +243,17 @@ export default function ProductPage() {
                 </button>
               </div>
               <Link 
-                href={`/checkout/${slug}`}
+                href={{
+                  pathname: `/checkout/${slug}`,
+                  query: { 
+                    imageUrl: selectedImageUrl,
+                    productTitle: product.title,
+                    price: product.price,
+                    color: selectedColor, 
+                    size: selectedSize, 
+                    quantity: quantity
+                  }
+                }}
                 className={`w-full py-4 text-center font-medium text-white ${
                   product.isInStock 
                     ? 'bg-gradient-to-br from-gray-900 to-black border border-gray-700 hover:shadow-[0_0_10px_rgba(255,255,255,0.1)] hover:-translate-y-1' 
@@ -258,7 +265,6 @@ export default function ProductPage() {
               </Link>
             </div>
 
-            {/* Variants section */}
             {product.variants && product.variants.length > 0 && (
               <div className="border-t border-gray-800 pt-4">
                 <h3 className="font-medium text-white mb-2">Available Variants</h3>
@@ -286,7 +292,6 @@ export default function ProductPage() {
           </div>
         </div>
 
-        {/* Tabs (full-width on both mobile and desktop) */}
         <div className="border-t border-gray-800 pt-4 mt-4">
           <div className="flex border-b border-gray-800">
             <button 
@@ -397,19 +402,18 @@ export default function ProductPage() {
             </div>
           )}
         </div>
-      </div>
 
-      {/* Promotional banner */}
-      {product.discount > 0 && (
-        <div className="fixed bottom-0 left-0 bg-gradient-to-r from-gray-900 to-black p-4 text-white w-full">
-          <div className="flex items-center justify-between">
-            <span className="font-medium text-gray-200">Get {product.discount}% Off on this product!</span>
-            <button className="text-gray-300 hover:text-white">
-              <X className="h-5 w-5" />
-            </button>
+        {product.discount > 0 && (
+          <div className="fixed bottom-0 left-0 bg-gradient-to-r from-gray-900 to-black p-4 text-white w-full">
+            <div className="flex items-center justify-between">
+              <span className="font-medium text-gray-200">Get {product.discount}% Off on this product!</span>
+              <button className="text-gray-300 hover:text-white">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
