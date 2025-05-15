@@ -7,11 +7,14 @@ export default function ManageOrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [filterStatus, setFilterStatus] = useState('All'); // State for filtering by status
+  const [successMessage, setSuccessMessage] = useState(null);
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await fetch('/api/getOrders');
+        const url = filterStatus === 'All' ? '/api/getOrders' : `/api/getOrders?status=${filterStatus}`;
+        const res = await fetch(url);
         const data = await res.json();
 
         if (!res.ok) {
@@ -27,7 +30,35 @@ export default function ManageOrdersPage() {
     };
 
     fetchOrders();
-  }, []);
+  }, [filterStatus]); // Re-fetch orders when filter changes
+
+  const handleStatusUpdate = async (orderId, newStatus) => {
+    try {
+      const res = await fetch('/api/updateOrderStatus', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ orderId, status: newStatus }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to update status');
+      }
+
+      // Update the orders list with the updated order
+      setOrders(orders.map(order => 
+        order._id === orderId ? { ...order, status: newStatus } : order
+      ));
+      setSuccessMessage('Status updated successfully!');
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err) {
+      setError(err.message);
+      setTimeout(() => setError(null), 3000);
+    }
+  };
 
   if (loading) {
     return (
@@ -65,6 +96,37 @@ export default function ManageOrdersPage() {
 
         <h1 className="text-3xl font-bold tracking-wide text-white uppercase mb-6">Manage Orders</h1>
 
+        {successMessage && (
+          <div className="mb-6 p-4 bg-green-600 text-white rounded-md">
+            {successMessage}
+          </div>
+        )}
+
+        {error && (
+          <div className="mb-6 p-4 bg-red-600 text-white rounded-md">
+            {error}
+          </div>
+        )}
+
+        {/* Filter by Status */}
+        <div className="mb-6">
+          <label htmlFor="statusFilter" className="text-gray-200 mr-2">Filter by Status:</label>
+          <select
+            id="statusFilter"
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="p-2 bg-gray-800 text-white border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400"
+          >
+            <option value="All">All</option>
+            <option value="Pending">Pending</option>
+            <option value="Processing">Processing</option>
+            <option value="Shipped">Shipped</option>
+            <option value="Delivered">Delivered</option>
+            <option value="Cancelled">Cancelled</option>
+            <option value="Returned">Returned</option>
+          </select>
+        </div>
+
         {orders.length === 0 ? (
           <p className="text-gray-200">No orders found.</p>
         ) : (
@@ -84,6 +146,7 @@ export default function ManageOrdersPage() {
                   <th className="p-3 text-gray-200">Phone Number</th>
                   <th className="p-3 text-gray-200">Address</th>
                   <th className="p-3 text-gray-200">Payment Method</th>
+                  <th className="p-3 text-gray-200">Status</th>
                   <th className="p-3 text-gray-200">Date</th>
                 </tr>
               </thead>
@@ -114,6 +177,20 @@ export default function ManageOrdersPage() {
                     <td className="p-3 text-gray-200">{order.phoneNumber || 'N/A'}</td>
                     <td className="p-3 text-gray-200">{order.address || 'N/A'}</td>
                     <td className="p-3 text-gray-200">{order.paymentMethod || 'N/A'}</td>
+                    <td className="p-3 text-gray-200">
+                      <select
+                        value={order.status}
+                        onChange={(e) => handleStatusUpdate(order._id, e.target.value)}
+                        className="p-1 bg-gray-800 text-white border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400"
+                      >
+                        <option value="Pending">Pending</option>
+                        <option value="Processing">Processing</option>
+                        <option value="Shipped">Shipped</option>
+                        <option value="Delivered">Delivered</option>
+                        <option value="Cancelled">Cancelled</option>
+                        <option value="Returned">Returned</option>
+                      </select>
+                    </td>
                     <td className="p-3 text-gray-200">
                       {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}
                     </td>

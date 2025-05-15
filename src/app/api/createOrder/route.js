@@ -30,6 +30,7 @@ export async function POST(request) {
       selectedSize,
       selectedColor,
       paymentMethod: 'Cash on Delivery',
+      // status defaults to 'Pending' as per schema
     });
     await newOrder.save();
 

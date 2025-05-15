@@ -13,6 +13,11 @@ const OrderSchema = new mongoose.Schema({
   imageUrl: { type: String, required: true },
   selectedSize: { type: String, required: true },
   selectedColor: { type: String, required: true },
+  status: { 
+    type: String, 
+    enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Returned'], 
+    default: 'Pending' 
+  },
   createdAt: { type: Date, default: Date.now },
 });
 
