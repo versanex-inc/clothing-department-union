@@ -251,6 +251,10 @@ export default function CheckoutPage() {
                   <div className="p-3 bg-gray-800 border border-gray-700 rounded-md text-gray-200">
                     Cash on Delivery (COD)
                   </div>
+                    <label className="block text-gray-200 mb-1">Delivery Charges</label>
+                  <div className="p-3 bg-gray-800 border border-gray-700 rounded-md text-gray-200">
+                    Free Home Delivery
+                  </div>
                   {/* Subtotal Display */}
                   <div className="mt-2 p-3 bg-gray-700 rounded-md text-white font-semibold">
                     Subtotal: PKR {subtotal}

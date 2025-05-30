@@ -229,6 +229,10 @@ export default function ProductPage() {
                 <span className="text-gray-200">Discount applied in cart.</span>
               </div>
             )}
+             <div className="flex items-center">
+              <span className="mr-2 flex h-3 w-3 rounded-full bg-gray-200"></span>
+              <span className="text-gray-200">Free Home Delivery</span>
+            </div>
             <div className="flex items-center">
               <span className="mr-2 flex h-3 w-3 rounded-full bg-gray-200"></span>
               <span className="text-gray-200">30-Day Money-Back Guarantee.</span>
@@ -236,10 +240,6 @@ export default function ProductPage() {
             <div className="flex items-center">
               <span className="mr-2 flex h-3 w-3 rounded-full bg-gray-200"></span>
               <span className="text-gray-200">Quality Assurance Warranty.</span>
-            </div>
-            <div className="flex items-center">
-              <span className="mr-2 flex h-3 w-3 rounded-full bg-gray-200"></span>
-              <span className="text-gray-200">24/7 Customer Support.</span>
             </div>
             <div className="flex items-center">
               <span className="mr-2 flex h-3 w-3 rounded-full bg-gray-200"></span>
@@ -403,10 +403,6 @@ export default function ProductPage() {
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between border-b border-gray-800 pb-2">
-                  <span className="text-gray-400">Care Instructions:</span>
-                  <span className="text-white">{product.careInstructions || 'N/A'}</span>
-                </div>
-                <div className="flex justify-between border-b border-gray-800 pb-2">
                   <span className="text-gray-400">Weight:</span>
                   <span className="text-white">{product.weight ? `${product.weight} g` : 'N/A'}</span>
                 </div>
@@ -417,6 +413,10 @@ export default function ProductPage() {
                 <div className="flex justify-between border-b border-gray-800 pb-2">
                   <span className="text-gray-400">Sizes Available:</span>
                   <span className="text-white">{product.size.join(', ')}</span>
+                </div>
+                 <div className="flex justify-between border-b border-gray-800 pb-2">
+                  <span className="text-gray-400">Care Instructions:</span>
+                  <span className="text-white">{product.careInstructions || 'N/A'}</span>
                 </div>
               </div>
             </div>
