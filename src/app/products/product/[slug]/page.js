@@ -115,55 +115,55 @@ export default function ProductPage() {
       </section>
 
       <section className="py-20 bg-gray-950">
-  <div className="container mx-auto px-6">
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-      <div className="rounded-2xl shadow-lg overflow-hidden relative">
-        <Image
-          src={product.image.url}
-          alt={`${product.title} - Custom Car Seat Covers by Prime Autos`}
-          width={600}
-          height={400}
-          className="w-full h-auto object-cover"
-          unoptimized
-        />
-        <div
-          className="absolute inset-0"
-          onContextMenu={(e) => e.preventDefault()}
-          style={{ pointerEvents: "auto" }}
-        ></div>
-      </div>
-      <div className="flex flex-col justify-center">
-        <h2 className="text-3xl font-bold text-white mb-4">{product.title}</h2>
-        <p className="text-gray-300 mb-4">
-          <span className="font-semibold">Car:</span> {product.carName}
-        </p>
-        <p className="text-gray-300 mb-4">
-          <span className="font-semibold">Product Number:</span> #{product.productNumber}
-        </p>
-        <p className="text-gray-300 mb-6">
-          Elevate your vehicle's interior with this stunning product by Prime Autos. Our custom car seat covers and poshish are crafted to perfection, ensuring a luxurious and stylish look for your {product.carName}.
-        </p>
-        <Link
-          href="https://wa.me/923049791616?text=Hi%20Prime%20Autos%20I%20am%20ready%20to%20book%20your%20custom%20car%20seat%20covers%20and%20poshish%20interior%20services%20but%20want%20to%20know%20more%20details."
-          target="_blank"
-          className="inline-flex items-center gap-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-8 py-3.5 rounded-full font-medium text-lg transition-all duration-300 hover:shadow-xl hover:shadow-red-600/40 hover:-translate-y-1"
-        >
-          Inquire About This Product
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-          </svg>
-        </Link>
-      </div>
-    </div>
-    {/* Rest of the section */}
-  </div>
-</section>
+        <div className="container mx-auto px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <div className="rounded-2xl shadow-lg overflow-hidden relative">
+              <Image
+                src={product.image.url}
+                alt={`${product.title} - Custom Car Seat Covers by Prime Autos`}
+                width={600}
+                height={400}
+                className="w-full h-auto object-cover"
+                unoptimized
+              />
+              <div
+                className="absolute inset-0"
+                onContextMenu={(e) => e.preventDefault()}
+                style={{ pointerEvents: "auto" }}
+              ></div>
+            </div>
+            <div className="flex flex-col justify-center">
+              <h2 className="text-3xl font-bold text-white mb-4">{product.title}</h2>
+              <p className="text-gray-300 mb-4">
+                <span className="font-semibold">Car:</span> {product.carName}
+              </p>
+              <p className="text-gray-300 mb-4">
+                <span className="font-semibold">Product Number:</span> #{product.productNumber}
+              </p>
+              <p className="text-gray-300 mb-6">
+                Elevate your vehicle's interior with this stunning product by Prime Autos. Our custom car seat covers and poshish are crafted to perfection, ensuring a luxurious and stylish look for your {product.carName}.
+              </p>
+              <Link
+                href="https://wa.me/923049791616?text=Hi%20Prime%20Autos%20I%20am%20ready%20to%20book%20your%20custom%20car%20seat%20covers%20and%20poshish%20interior%20services%20but%20want%20to%20know%20more%20details."
+                target="_blank"
+                className="inline-flex items-center gap-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-8 py-3.5 rounded-full font-medium text-lg transition-all duration-300 hover:shadow-xl hover:shadow-red-600/40 hover:-translate-y-1"
+              >
+                Inquire About This Product
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </Link>
+            </div>
+          </div>
+          {/* Rest of the section */}
+        </div>
+      </section>
     </div>
   );
 }

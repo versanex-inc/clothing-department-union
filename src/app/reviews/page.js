@@ -82,7 +82,7 @@ const ReviewsPage = () => {
                 ))}
               </div>
               <p className="text-base sm:text-lg text-gray-200 text-center mb-2">
-                "{review.quote}"
+                &quot;{review.quote}&quot;
               </p>
               <p className="text-sm sm:text-base font-medium uppercase tracking-tight text-gray-100 text-center">
                 - {review.name}
