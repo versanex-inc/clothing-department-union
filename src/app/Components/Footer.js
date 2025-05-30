@@ -9,7 +9,7 @@ const Footer = () => {
           {/* Name and Headline */}
           <div className="flex flex-col items-center md:items-start">
             <h2 className="text-3xl md:text-4xl font-bold text-white tracking-wide hover:scale-105 transition-transform duration-300">
-              ClothCraft
+              CDU
             </h2>
             <p className="text-gray-400 mt-2 text-sm md:text-base font-light leading-relaxed">
               Providing you best quality clother is our first Priority.
@@ -81,7 +81,7 @@ const Footer = () => {
               </a>
             </div>
             <a
-              href="https://wa.me/923457778536?text=Hi%20ClothCraft,%20I%27m%20interested%20in%20your%20t-shirt%20products."
+              href="https://wa.me/923457778536?text=Hi%20CDU,%20I%27m%20interested%20in%20your%20t-shirt%20products."
               target="_blank"
               rel="noopener noreferrer"
               className="bg-gradient-to-br from-gray-900 to-black text-white px-6 py-2 rounded-full font-medium text-base border border-white/20 transition-all duration-300 hover:bg-white/10 hover:shadow-lg hover:scale-105 flex items-center gap-3 animate-pulse shadow-[0_0_15px_rgba(255,255,255,0.3)]"
