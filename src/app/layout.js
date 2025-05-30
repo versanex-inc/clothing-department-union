@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Prime Autos",
-  description: "Premium car poshish service in Pakistan",
+  title: "Clothing Department Union",
+  description: "Deals in All Kind of Premium Qualities",
   icons: {
     icon: ["/imgs/favicon/favicon.ico?v=4"],
     apple: ["imgs/favicon/apple-touch-icon.png?v=4"],
