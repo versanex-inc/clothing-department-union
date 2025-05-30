@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata = {
   title: "Clothing Department Union",
-  description: "Deals in All Kind of Premium Qualities",
+  description: "Deals in All Kind of Premium Qualities in Clothing",
   icons: {
     icon: ["/imgs/favicon/favicon.ico?v=4"],
     apple: ["imgs/favicon/apple-touch-icon.png?v=4"],
