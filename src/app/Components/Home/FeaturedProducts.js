@@ -10,7 +10,7 @@ const FeaturedProducts = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/getProducts');
+        const response = await fetch('/api/getProducts');
         if (!response.ok) throw new Error("Failed to fetch products");
         const data = await response.json();
         const starredProducts = data.products.filter(product => product.starred === true);
