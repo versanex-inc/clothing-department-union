@@ -109,7 +109,7 @@ export default function ClientNav() {
           href="/"
           className="text-3xl font-bold text-white hover:scale-105 transition-transform duration-300"
         >
-          ClothCraft
+          CDU
         </Link>
 
         {/* Desktop Menu */}

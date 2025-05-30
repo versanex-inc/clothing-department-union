@@ -20,7 +20,7 @@ const Footer = () => {
           <div className="flex flex-col md:flex-row justify-center md:justify-end items-center gap-6">
             <div className="flex gap-4">
               <a
-                href="https://facebook.com/primexautos"
+                href="https://facebook.com/clothingdepartmentunion"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-white transition-all duration-300 hover:scale-110"
@@ -35,7 +35,7 @@ const Footer = () => {
                 </svg>
               </a>
               <a
-                href="https://instagram.com/primexautos"
+                href="https://instagram.com/clothingdepartmentunion"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-white transition-all duration-300 hover:scale-110"
@@ -50,7 +50,7 @@ const Footer = () => {
                 </svg>
               </a>
               <a
-                href="https://tiktok.com/@primexautos"
+                href="https://tiktok.com/@clothingdepartmentunion"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-white transition-all duration-300 hover:scale-110"
@@ -65,7 +65,7 @@ const Footer = () => {
                 </svg>
               </a>
               <a
-                href="https://youtube.com/@primexautos"
+                href="https://youtube.com/@clothingdepartmentunion"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-white transition-all duration-300 hover:scale-110"

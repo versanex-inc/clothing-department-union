@@ -4,7 +4,7 @@ const SpecialOffers = () => {
   const socialLinks = [
     {
       name: "TikTok",
-      url: "https://www.tiktok.com/@yourbrand", // Replace with your actual TikTok link
+      url: "https://www.tiktok.com/@clothingdepartmentunion", // Replace with your actual TikTok link
       icon: (
         <svg
           className="w-6 h-6 text-gray-200 hover:text-white transition-colors duration-300"
@@ -18,7 +18,7 @@ const SpecialOffers = () => {
     },
     {
       name: "YouTube",
-      url: "https://www.youtube.com/@yourbrand", // Replace with your actual YouTube link
+      url: "https://www.youtube.com/@clothingdepartmentunion", // Replace with your actual YouTube link
       icon: (
         <svg
           className="w-6 h-6 text-gray-200 hover:text-white transition-colors duration-300"
@@ -32,7 +32,7 @@ const SpecialOffers = () => {
     },
     {
       name: "Facebook",
-      url: "https://www.facebook.com/yourbrand", // Replace with your actual Facebook link
+      url: "https://www.facebook.com/clothingdepartmentunion", // Replace with your actual Facebook link
       icon: (
         <svg
           className="w-6 h-6 text-gray-200 hover:text-white transition-colors duration-300"
@@ -46,7 +46,7 @@ const SpecialOffers = () => {
     },
     {
       name: "Instagram",
-      url: "https://www.instagram.com/yourbrand", // Replace with your actual Instagram link
+      url: "https://www.instagram.com/clothingdepartmentunion", // Replace with your actual Instagram link
       icon: (
         <svg
           className="w-6 h-6 text-gray-200 hover:text-white transition-colors duration-300"

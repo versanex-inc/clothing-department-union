@@ -78,8 +78,8 @@ export default function ProductPage() {
     : 0;
 
   const getColorClass = (color) => {
-    const safeColor = color.toLowerCase().replace(/[^a-z]/g, '');
-    return `bg-${safeColor}-500 border-${safeColor}-700`;
+    // Return the raw color value from the database (e.g., hex, RGB, or color name)
+    return color || '#000000'; // Fallback to black if color is invalid or undefined
   };
 
   const selectedImageUrl = product.images && product.images.length > 0
@@ -130,7 +130,7 @@ export default function ProductPage() {
                 ))}
               </div>
 
-              <div className={`relative flex-1 bg-gradient-to-br from-gray-900 to-black border ${getColorClass(selectedColor)} mb-4`}>
+              <div className={`relative flex-1 bg-gradient-to-br from-gray-900 to-black border border-gray-700 mb-4`}>
                 {product.images && product.images.length > 0 ? (
                   <Image
                     src={product.images[selectedImage]?.url || product.images[0].url}
@@ -187,17 +187,17 @@ export default function ProductPage() {
               <div>
                 <h3 className="mb-2 font-medium text-white">Color: {selectedColor}</h3>
                 <div className="flex space-x-2">
-                  {product.color.map((color, index) => {
-                    const bgColorClass = getColorClass(color);
-                    return (
-                      <button 
-                        key={index} 
-                        className={`h-8 w-8 rounded-full ${bgColorClass} ${selectedColor === color ? 'ring-2 ring-gray-200' : 'ring-1 ring-gray-600'}`} 
-                        aria-label={color}
-                        onClick={() => setSelectedColor(color)}
-                      ></button>
-                    );
-                  })}
+                  {product.color.map((color, index) => (
+                    <button 
+                      key={index} 
+                      className={`h-8 w-8 rounded-full ${
+                        selectedColor === color ? 'ring-2 ring-gray-400' : 'ring-1 ring-gray-600'
+                      }`}
+                      style={{ backgroundColor: getColorClass(color) }} // Apply color directly
+                      aria-label={color}
+                      onClick={() => setSelectedColor(color)}
+                    ></button>
+                  ))}
                 </div>
               </div>
 
@@ -229,6 +229,22 @@ export default function ProductPage() {
                 <span className="text-gray-200">Discount applied in cart.</span>
               </div>
             )}
+            <div className="flex items-center">
+              <span className="mr-2 flex h-3 w-3 rounded-full bg-gray-200"></span>
+              <span className="text-gray-200">30-Day Money-Back Guarantee.</span>
+            </div>
+            <div className="flex items-center">
+              <span className="mr-2 flex h-3 w-3 rounded-full bg-gray-200"></span>
+              <span className="text-gray-200">Quality Assurance Warranty.</span>
+            </div>
+            <div className="flex items-center">
+              <span className="mr-2 flex h-3 w-3 rounded-full bg-gray-200"></span>
+              <span className="text-gray-200">24/7 Customer Support.</span>
+            </div>
+            <div className="flex items-center">
+              <span className="mr-2 flex h-3 w-3 rounded-full bg-gray-200"></span>
+              <span className="text-gray-200">Trusted by Thousands of Happy Customers.</span>
+            </div>
 
             <div className="flex items-center space-x-4">
               <div className="flex items-center border border-gray-700 bg-gradient-to-br from-gray-900 to-black">
@@ -273,23 +289,23 @@ export default function ProductPage() {
               <div className="border-t border-gray-800 pt-4">
                 <h3 className="font-medium text-white mb-2">Available Variants</h3>
                 <div className="space-y-2">
-                  {product.variants.map((variant, index) => {
-                    const variantColorClass = getColorClass(variant.color);
-                    return (
-                      <div key={index} className="flex justify-between items-center border border-gray-800 p-2 bg-gradient-to-br from-gray-900 to-black">
-                        <div className="flex items-center space-x-2">
-                          <div className={`h-4 w-4 rounded-full ${variantColorClass}`}></div>
-                          <span className="text-white">{variant.color}, {variant.size}</span>
-                        </div>
-                        <div className="text-gray-400">
-                          {variant.stock > 0 ? `${variant.stock} in stock` : 'Out of stock'}
-                        </div>
-                        <div className="text-gray-200 font-medium">
-                          PKR {variant.price || product.price}
-                        </div>
+                  {product.variants.map((variant, index) => (
+                    <div key={index} className="flex justify-between items-center border border-gray-800 p-2 bg-gradient-to-br from-gray-900 to-black">
+                      <div className="flex items-center space-x-2">
+                        <div 
+                          className="h-4 w-4 rounded-full"
+                          style={{ backgroundColor: getColorClass(variant.color) }} // Apply variant color directly
+                        ></div>
+                        <span className="text-white">{variant.color}, {variant.size}</span>
                       </div>
-                    );
-                  })}
+                      <div className="text-gray-400">
+                        {variant.stock > 0 ? `${variant.stock} in stock` : 'Out of stock'}
+                      </div>
+                      <div className="text-gray-200 font-medium">
+                        PKR {variant.price || product.price}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}

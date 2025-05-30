@@ -45,7 +45,7 @@ export default function AdminLogin() {
       <div className="relative z-10 bg-gray-900/80 p-8 rounded-lg shadow-xl w-full max-w-md border border-gray-700">
         <h1 className="text-3xl font-bold text-white mb-6 text-center">
           <span className="bg-gradient-to-r from-red-600 to-red-800 bg-clip-text text-transparent">
-            Prime Autos
+            CDU
           </span>{' '}
           Admin Login
         </h1>
