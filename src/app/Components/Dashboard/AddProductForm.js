@@ -150,6 +150,17 @@ export default function AddProductForm({ onProductAdded }) {
             required
           />
         </div>
+         <div>
+          <label className="block text-gray-300">Slug *</label>
+          <input
+            type="text"
+            name="slug"
+            value={formData.slug}
+            onChange={handleChange}
+            className="w-full bg-gray-800 text-white border border-white/20 rounded p-2"
+            required
+          />
+        </div>
         <div>
           <label className="block text-gray-300">Description *</label>
           <textarea
@@ -161,14 +172,13 @@ export default function AddProductForm({ onProductAdded }) {
           />
         </div>
         <div>
-          <label className="block text-gray-300">Slug *</label>
+          <label className="block text-gray-300">Tags (comma-separated)</label>
           <input
             type="text"
-            name="slug"
-            value={formData.slug}
+            name="tags"
+            value={formData.tags}
             onChange={handleChange}
             className="w-full bg-gray-800 text-white border border-white/20 rounded p-2"
-            required
           />
         </div>
         <div>
@@ -354,16 +364,6 @@ export default function AddProductForm({ onProductAdded }) {
             onChange={handleChange}
             className="w-full bg-gray-800 text-white border border-white/20 rounded p-2"
             min="0"
-          />
-        </div>
-        <div>
-          <label className="block text-gray-300">Tags (comma-separated)</label>
-          <input
-            type="text"
-            name="tags"
-            value={formData.tags}
-            onChange={handleChange}
-            className="w-full bg-gray-800 text-white border border-white/20 rounded p-2"
           />
         </div>
         <div>

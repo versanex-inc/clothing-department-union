@@ -231,6 +231,22 @@ export default function EditProductForm({ product, onProductUpdated }) {
             disabled={loading}
           />
         </div>
+         <div>
+          <label htmlFor="slug" className="block text-sm font-medium text-gray-200 mb-2">
+            Slug (Auto-generated from first image, editable)
+          </label>
+          <input
+            type="text"
+            id="slug"
+            name="slug"
+            value={formData.slug}
+            onChange={handleChange}
+            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
+            placeholder="Slug will auto-generate from first image"
+            required
+            disabled={loading}
+          />
+        </div>
         <div>
           <label htmlFor="description" className="block text-sm font-medium text-gray-200 mb-2">
             Description
@@ -245,6 +261,21 @@ export default function EditProductForm({ product, onProductUpdated }) {
             required
             disabled={loading}
             rows="4"
+          />
+        </div>
+           <div>
+          <label htmlFor="tags" className="block text-sm font-medium text-gray-200 mb-2">
+            Tags (comma-separated, e.g., casual,formal,summer) (optional)
+          </label>
+          <input
+            type="text"
+            id="tags"
+            name="tags"
+            value={formData.tags}
+            onChange={handleChange}
+            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
+            placeholder="Enter tags (e.g., casual,formal,summer)"
+            disabled={loading}
           />
         </div>
         <div>
@@ -505,21 +536,6 @@ export default function EditProductForm({ product, onProductUpdated }) {
           />
         </div>
         <div>
-          <label htmlFor="tags" className="block text-sm font-medium text-gray-200 mb-2">
-            Tags (comma-separated, e.g., casual,formal,summer) (optional)
-          </label>
-          <input
-            type="text"
-            id="tags"
-            name="tags"
-            value={formData.tags}
-            onChange={handleChange}
-            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
-            placeholder="Enter tags (e.g., casual,formal,summer)"
-            disabled={loading}
-          />
-        </div>
-        <div>
           <label htmlFor="season" className="block text-sm font-medium text-gray-200 mb-2">
             Season (optional)
           </label>
@@ -638,22 +654,7 @@ export default function EditProductForm({ product, onProductUpdated }) {
             disabled={loading}
           />
         </div>
-        <div>
-          <label htmlFor="slug" className="block text-sm font-medium text-gray-200 mb-2">
-            Slug (Auto-generated from first image, editable)
-          </label>
-          <input
-            type="text"
-            id="slug"
-            name="slug"
-            value={formData.slug}
-            onChange={handleChange}
-            className="w-full p-3 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600"
-            placeholder="Slug will auto-generate from first image"
-            required
-            disabled={loading}
-          />
-        </div>
+       
         <button
           type="submit"
           className={`w-full p-3 rounded font-medium text-base text-white transition-all duration-300 ${
