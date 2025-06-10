@@ -49,7 +49,7 @@ export default function EditProduct() {
 
   const handleProductUpdated = () => {
     setMessage({ type: 'success', text: 'Product updated successfully!' });
-    setTimeout(() => router.push('/dashboard/manageProducts'), 1500);
+    setTimeout(() => router.push('/dashboard/manageProducts/productlist'), 1500);
   };
 
   if (loading) {
