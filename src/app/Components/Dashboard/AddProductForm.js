@@ -457,7 +457,7 @@ export default function AddProductForm({ onProductAdded }) {
           type="submit"
           className="w-full bg-red-600 text-white py-2 rounded hover:bg-red-700 transition-all duration-300"
         >
-          Add Product
+          Add Product lets go
         </button>
       </form>
     </div>
