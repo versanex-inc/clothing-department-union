@@ -130,9 +130,10 @@ export default function AddProductForm({ onProductAdded }) {
       {error && <p className="text-red-500 mb-4">{error}</p>}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-gray-300">Images *</label>
+          <label htmlFor="images" className="block text-gray-300">Images *</label>
           <input
             type="file"
+            id="images"
             multiple
             onChange={handleImageChange}
             className="w-full bg-gray-800 text-white border border-white/20 rounded p-2"
@@ -140,9 +141,10 @@ export default function AddProductForm({ onProductAdded }) {
           />
         </div>
         <div>
-          <label className="block text-gray-300">Title *</label>
+          <label htmlFor="title" className="block text-gray-300">Title *</label>
           <input
             type="text"
+            id="title"
             name="title"
             value={formData.title}
             onChange={handleChange}
@@ -150,10 +152,11 @@ export default function AddProductForm({ onProductAdded }) {
             required
           />
         </div>
-         <div>
-          <label className="block text-gray-300">Slug *</label>
+        <div>
+          <label htmlFor="slug" className="block text-gray-300">Slug *</label>
           <input
             type="text"
+            id="slug"
             name="slug"
             value={formData.slug}
             onChange={handleChange}
@@ -162,8 +165,9 @@ export default function AddProductForm({ onProductAdded }) {
           />
         </div>
         <div>
-          <label className="block text-gray-300">Description *</label>
+          <label htmlFor="description" className="block text-gray-300">Description *</label>
           <textarea
+            id="description"
             name="description"
             value={formData.description}
             onChange={handleChange}
@@ -172,9 +176,10 @@ export default function AddProductForm({ onProductAdded }) {
           />
         </div>
         <div>
-          <label className="block text-gray-300">Tags (comma-separated)</label>
+          <label htmlFor="tags" className="block text-gray-300">Tags (comma-separated)</label>
           <input
             type="text"
+            id="tags"
             name="tags"
             value={formData.tags}
             onChange={handleChange}
@@ -182,9 +187,10 @@ export default function AddProductForm({ onProductAdded }) {
           />
         </div>
         <div>
-          <label className="block text-gray-300">Price *</label>
+          <label htmlFor="price" className="block text-gray-300">Price *</label>
           <input
             type="number"
+            id="price"
             name="price"
             value={formData.price}
             onChange={handleChange}
@@ -194,9 +200,10 @@ export default function AddProductForm({ onProductAdded }) {
           />
         </div>
         <div>
-          <label className="block text-gray-300">Original Price</label>
+          <label htmlFor="originalPrice" className="block text-gray-300">Original Price</label>
           <input
             type="number"
+            id="originalPrice"
             name="originalPrice"
             value={formData.originalPrice}
             onChange={handleChange}
@@ -205,9 +212,10 @@ export default function AddProductForm({ onProductAdded }) {
           />
         </div>
         <div>
-          <label className="block text-gray-300">Colors (comma-separated) *</label>
+          <label htmlFor="color" className="block text-gray-300">Colors (comma-separated) *</label>
           <input
             type="text"
+            id="color"
             name="color"
             value={formData.color}
             onChange={handleChange}
@@ -216,9 +224,10 @@ export default function AddProductForm({ onProductAdded }) {
           />
         </div>
         <div>
-          <label className="block text-gray-300">Sizes (comma-separated) *</label>
+          <label htmlFor="size" className="block text-gray-300">Sizes (comma-separated) *</label>
           <input
             type="text"
+            id="size"
             name="size"
             value={formData.size}
             onChange={handleChange}
@@ -227,8 +236,9 @@ export default function AddProductForm({ onProductAdded }) {
           />
         </div>
         <div>
-          <label className="block text-gray-300">Category *</label>
+          <label htmlFor="category" className="block text-gray-300">Category *</label>
           <select
+            id="category"
             name="category"
             value={formData.category}
             onChange={handleChange}
@@ -244,9 +254,10 @@ export default function AddProductForm({ onProductAdded }) {
           </select>
         </div>
         <div>
-          <label className="block text-gray-300">Material *</label>
+          <label htmlFor="material" className="block text-gray-300">Material *</label>
           <input
             type="text"
+            id="material"
             name="material"
             value={formData.material}
             onChange={handleChange}
@@ -255,9 +266,10 @@ export default function AddProductForm({ onProductAdded }) {
           />
         </div>
         <div>
-          <label className="block text-gray-300">Brand</label>
+          <label htmlFor="brand" className="block text-gray-300">Brand</label>
           <input
             type="text"
+            id="brand"
             name="brand"
             value={formData.brand}
             onChange={handleChange}
@@ -265,9 +277,10 @@ export default function AddProductForm({ onProductAdded }) {
           />
         </div>
         <div>
-          <label className="block text-gray-300">Stock</label>
+          <label htmlFor="stock" className="block text-gray-300">Stock</label>
           <input
             type="number"
+            id="stock"
             name="stock"
             value={formData.stock}
             onChange={handleChange}
@@ -276,9 +289,10 @@ export default function AddProductForm({ onProductAdded }) {
           />
         </div>
         <div>
-          <label className="block text-gray-300">Discount (%)</label>
+          <label htmlFor="discount" className="block text-gray-300">Discount (%)</label>
           <input
             type="number"
+            id="discount"
             name="discount"
             value={formData.discount}
             onChange={handleChange}
@@ -288,8 +302,9 @@ export default function AddProductForm({ onProductAdded }) {
           />
         </div>
         <div>
-          <label className="block text-gray-300">Gender *</label>
+          <label htmlFor="gender" className="block text-gray-300">Gender *</label>
           <select
+            id="gender"
             name="gender"
             value={formData.gender}
             onChange={handleChange}
@@ -303,8 +318,9 @@ export default function AddProductForm({ onProductAdded }) {
           </select>
         </div>
         <div>
-          <label className="block text-gray-300">Fit</label>
+          <label htmlFor="fit" className="block text-gray-300">Fit</label>
           <select
+            id="fit"
             name="fit"
             value={formData.fit}
             onChange={handleChange}
@@ -317,8 +333,9 @@ export default function AddProductForm({ onProductAdded }) {
           </select>
         </div>
         <div>
-          <label className="block text-gray-300">Sleeve Length</label>
+          <label htmlFor="sleeveLength" className="block text-gray-300">Sleeve Length</label>
           <select
+            id="sleeveLength"
             name="sleeveLength"
             value={formData.sleeveLength}
             onChange={handleChange}
@@ -331,8 +348,9 @@ export default function AddProductForm({ onProductAdded }) {
           </select>
         </div>
         <div>
-          <label className="block text-gray-300">Pattern</label>
+          <label htmlFor="pattern" className="block text-gray-300">Pattern</label>
           <select
+            id="pattern"
             name="pattern"
             value={formData.pattern}
             onChange={handleChange}
@@ -346,9 +364,10 @@ export default function AddProductForm({ onProductAdded }) {
           </select>
         </div>
         <div>
-          <label className="block text-gray-300">Care Instructions</label>
+          <label htmlFor="careInstructions" className="block text-gray-300">Care Instructions</label>
           <input
             type="text"
+            id="careInstructions"
             name="careInstructions"
             value={formData.careInstructions}
             onChange={handleChange}
@@ -356,9 +375,10 @@ export default function AddProductForm({ onProductAdded }) {
           />
         </div>
         <div>
-          <label className="block text-gray-300">Weight (grams)</label>
+          <label htmlFor="weight" className="block text-gray-300">Weight (grams)</label>
           <input
             type="number"
+            id="weight"
             name="weight"
             value={formData.weight}
             onChange={handleChange}
@@ -367,8 +387,9 @@ export default function AddProductForm({ onProductAdded }) {
           />
         </div>
         <div>
-          <label className="block text-gray-300">Season</label>
+          <label htmlFor="season" className="block text-gray-300">Season</label>
           <select
+            id="season"
             name="season"
             value={formData.season}
             onChange={handleChange}
@@ -383,8 +404,9 @@ export default function AddProductForm({ onProductAdded }) {
           </select>
         </div>
         <div>
-          <label className="block text-gray-300">Occasion</label>
+          <label htmlFor="occasion" className="block text-gray-300">Occasion</label>
           <select
+            id="occasion"
             name="occasion"
             value={formData.occasion}
             onChange={handleChange}
@@ -398,9 +420,10 @@ export default function AddProductForm({ onProductAdded }) {
           </select>
         </div>
         <div>
-          <label className="block text-gray-300">Ratings (0-5)</label>
+          <label htmlFor="ratings" className="block text-gray-300">Ratings (0-5)</label>
           <input
             type="number"
+            id="ratings"
             name="ratings"
             value={formData.ratings}
             onChange={handleChange}
@@ -410,9 +433,10 @@ export default function AddProductForm({ onProductAdded }) {
           />
         </div>
         <div>
-          <label className="block text-gray-300">Reviews</label>
+          <label htmlFor="reviews" className="block text-gray-300">Reviews</label>
           <input
             type="number"
+            id="reviews"
             name="reviews"
             value={formData.reviews}
             onChange={handleChange}
@@ -421,9 +445,10 @@ export default function AddProductForm({ onProductAdded }) {
           />
         </div>
         <div>
-          <label className="block text-gray-300">In Stock</label>
+          <label htmlFor="isInStock" className="block text-gray-300">In Stock</label>
           <input
             type="checkbox"
+            id="isInStock"
             name="isInStock"
             checked={formData.isInStock}
             onChange={handleChange}
@@ -432,9 +457,10 @@ export default function AddProductForm({ onProductAdded }) {
           <span className="text-gray-300">Check if in stock</span>
         </div>
         <div>
-          <label className="block text-gray-300">Starred</label>
+          <label htmlFor="starred" className="block text-gray-300">Starred</label>
           <input
             type="checkbox"
+            id="starred"
             name="starred"
             checked={formData.starred}
             onChange={handleChange}
@@ -443,9 +469,10 @@ export default function AddProductForm({ onProductAdded }) {
           <span className="text-gray-300">Feature this product</span>
         </div>
         <div>
-          <label className="block text-gray-300">Sold Count</label>
+          <label htmlFor="soldCount" className="block text-gray-300">Sold Count</label>
           <input
             type="number"
+            id="soldCount"
             name="soldCount"
             value={formData.soldCount}
             onChange={handleChange}
