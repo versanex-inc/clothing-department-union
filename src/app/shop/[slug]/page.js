@@ -483,7 +483,7 @@ export default function ProductPage() {
 
         {/* Related Products Section */}
         <section id="related-products" className="w-full py-12">
-          <div className="max-w-screen-2xl mx-auto px-4 sm:px-6">
+          <div className="max-w-screen-2xl mx-auto">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-center mb-8 sm:mb-10 uppercase tracking-wider animate-fade-in text-gray-100">
               Related Products
             </h2>

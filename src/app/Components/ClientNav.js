@@ -11,7 +11,10 @@ export default function ClientNav() {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
+  const [focusedIndex, setFocusedIndex] = useState(-1); // Track focused search result
   const searchRef = useRef(null);
+  const searchResultsRef = useRef([]); // Ref for search result elements
+  const dropdownRef = useRef(null); // Ref for dropdown container
   const router = useRouter();
 
   // Fetch products from API
@@ -33,6 +36,7 @@ export default function ClientNav() {
     if (searchQuery.trim() === "") {
       setFilteredProducts([]);
       setIsSearchDropdownOpen(false);
+      setFocusedIndex(-1);
       return;
     }
 
@@ -46,6 +50,7 @@ export default function ClientNav() {
     );
     setFilteredProducts(filtered);
     setIsSearchDropdownOpen(true);
+    setFocusedIndex(-1); // Reset focus when results change
   }, [searchQuery, products]);
 
   // Close dropdown when clicking outside
@@ -53,6 +58,7 @@ export default function ClientNav() {
     const handleClickOutside = (event) => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
         setIsSearchDropdownOpen(false);
+        setFocusedIndex(-1);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -90,16 +96,58 @@ export default function ClientNav() {
 
   const handleSearchKeyDown = (e) => {
     if (e.key === "Enter" && searchQuery.trim()) {
-      router.push(`/shop?search=${encodeURIComponent(searchQuery)}`);
-      setSearchQuery("");
+      if (focusedIndex >= 0 && filteredProducts[focusedIndex]) {
+        // Navigate to the focused product if one is selected
+        router.push(`/shop/${filteredProducts[focusedIndex].slug}`);
+        setSearchQuery("");
+        setIsSearchDropdownOpen(false);
+        setIsMobileMenuOpen(false);
+        setFocusedIndex(-1);
+      } else {
+        // Perform general search if no product is focused
+        router.push(`/shop?search=${encodeURIComponent(searchQuery)}`);
+        setSearchQuery("");
+        setIsSearchDropdownOpen(false);
+        setIsMobileMenuOpen(false);
+      }
+    } else if (e.key === "ArrowDown" && isSearchDropdownOpen && filteredProducts.length > 0) {
+      // Navigate through search results with down arrow
+      e.preventDefault();
+      const nextIndex = focusedIndex < filteredProducts.length - 1 ? focusedIndex + 1 : 0;
+      setFocusedIndex(nextIndex);
+      if (searchResultsRef.current[nextIndex]) {
+        searchResultsRef.current[nextIndex].focus();
+        searchResultsRef.current[nextIndex].scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+        });
+      }
+    } else if (e.key === "ArrowUp" && isSearchDropdownOpen && filteredProducts.length > 0) {
+      // Navigate through search results with up arrow
+      e.preventDefault();
+      const prevIndex = focusedIndex > 0 ? focusedIndex - 1 : filteredProducts.length - 1;
+      setFocusedIndex(prevIndex);
+      if (searchResultsRef.current[prevIndex]) {
+        searchResultsRef.current[prevIndex].focus();
+        searchResultsRef.current[prevIndex].scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+        });
+      }
+    } else if (e.key === "Escape") {
+      // Close dropdown on escape
       setIsSearchDropdownOpen(false);
-      setIsMobileMenuOpen(false);
+      setFocusedIndex(-1);
     }
   };
 
-  const handleSearchResultClick = () => {
+  const handleSearchResultClick = (slug, e) => {
+    e.stopPropagation(); // Prevent event bubbling
     setIsSearchDropdownOpen(false);
     setSearchQuery("");
+    setFocusedIndex(-1);
+    setIsMobileMenuOpen(false);
+    router.push(`/shop/${slug}`); // Programmatic navigation
   };
 
   const categories = ["Anime", "Casual", "Trending", "Memes", "Sports"];
@@ -107,7 +155,7 @@ export default function ClientNav() {
   return (
     <>
       {/* Navigation Bar */}
-      <nav className="w-full max-w-screen-2xl mx-auto flex justify-between items-center px-4 py-4 fixed top-0 z-50 bg-black border-b border-white/10 shadow-[0_4px_10px_rgba(17,24,39,0.5)] font-sans">
+      <nav className="w-full max-w-screen-2xl mx-auto flex justify-between items-center px-4 py-4 fixed top-0 z-50 bg-black border-b border-white/20 shadow-[0_4px_10px_rgba(17,24,39,0.5)] font-sans">
         {/* Logo */}
         <Link
           href="/"
@@ -126,7 +174,7 @@ export default function ClientNav() {
               onChange={handleSearchChange}
               onKeyDown={handleSearchKeyDown}
               placeholder="Search..."
-              className="w-60 bg-gradient-to-br from-gray-900 to-black text-white placeholder-white/50 border border-white/20 rounded-md !py-3 sm:py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all duration-300 hover:shadow-lg shadow-[0_0_10px_rgba(255,255,255,0.2)] text-sm min-h-[40px]"
+              className="w-60 bg-gradient-to-br from-gray-900 to-black text-white placeholder-white/50 border border-white/20 rounded-md py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all duration-300 hover:shadow-lg shadow-[0_0_10px_rgba(255,255,255,0.2)] text-sm min-h-[40px]"
             />
             <svg
               className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/50"
@@ -143,14 +191,25 @@ export default function ClientNav() {
               />
             </svg>
             {isSearchDropdownOpen && (
-              <div className="absolute top-full left-0 mt-2 w-full max-h-64 overflow-y-auto bg-gradient-to-br from-gray-900 to-black border border-white/20 rounded-lg shadow-lg z-50 hover:shadow-xl transition-all duration-300 transform origin-top">
+              <div
+                ref={dropdownRef}
+                className="absolute top-full left-0 mt-2 w-full max-h-64 overflow-y-auto bg-gradient-to-br from-gray-900 to-black border border-white/20 rounded-lg shadow-lg z-50 hover:shadow-xl transition-all duration-300 transform origin-top"
+              >
                 {filteredProducts.length > 0 ? (
-                  filteredProducts.map((product) => (
-                    <Link
+                  filteredProducts.map((product, index) => (
+                    <div
                       key={product._id}
-                      href={`/shop/${product.slug}`}
-                      onClick={handleSearchResultClick}
-                      className="block px-4 py-2 text-white hover:bg-white/10 hover:shadow-md transition-all duration-200 flex items-center gap-3"
+                      onClick={(e) => handleSearchResultClick(product.slug, e)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          handleSearchResultClick(product.slug, e);
+                        }
+                      }}
+                      ref={(el) => (searchResultsRef.current[index] = el)}
+                      className={`block px-4 py-2 text-white hover:bg-white/10 hover:shadow-md transition-all duration-200 flex items-center gap-3 cursor-pointer ${
+                        focusedIndex === index ? "bg-white/10" : ""
+                      }`}
+                      tabIndex={0}
                     >
                       <img
                         src={product.images[0]?.url || "https://via.placeholder.com/50x50?text=No+Image"}
@@ -161,12 +220,10 @@ export default function ClientNav() {
                         <p className="text-sm font-medium">{product.title}</p>
                         <p className="text-xs text-gray-400">Tags: {product.tags.join(", ")}</p>
                       </div>
-                    </Link>
+                    </div>
                   ))
                 ) : (
-                  <div className="px-4 py-2 text-gray-400 text-sm">
-                    No results found for "{searchQuery}"
-                  </div>
+                  <div className="px-4 py-2 text-gray-400 text-sm">No results found for "{searchQuery}"</div>
                 )}
               </div>
             )}
@@ -273,19 +330,9 @@ export default function ClientNav() {
                   stroke="currentColor"
                 >
                   {isMobileMenuOpen ? (
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   ) : (
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 6h16M4 12h16M4 18h16"
-                    />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                   )}
                 </svg>
               </button>
@@ -299,7 +346,7 @@ export default function ClientNav() {
               onChange={handleSearchChange}
               onKeyDown={handleSearchKeyDown}
               placeholder="Search..."
-              className="w-full bg-gradient-to-br from-gray-900 to-black text-white placeholder-white/50 border border-white/20 rounded-md !py-3 sm:py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all duration-300 hover:shadow-lg shadow-[0_0_10px_rgba(255,255,255,0.2)] text-sm min-h-[40px]"
+              className="w-full bg-gradient-to-br from-gray-900 to-black text-white placeholder-white/50 border border-white/20 rounded-md py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all duration-300 hover:shadow-lg shadow-[0_0_10px_rgba(255,255,255,0.2)] text-sm min-h-[40px]"
             />
             <svg
               className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/50"
@@ -316,17 +363,26 @@ export default function ClientNav() {
               />
             </svg>
             {isSearchDropdownOpen && (
-              <div className="absolute top-full left-0 mt-2 w-full max-h-64 overflow-y-auto bg-gradient-to-br from-gray-900 to-black border border-white/20 rounded-lg shadow-lg z-50 hover:shadow-xl transition-all duration-300 transform origin-top">
+              <div
+                ref={dropdownRef}
+                className="absolute top-full left-0 mt-2 w-full max-h-64 overflow-y-auto bg-gradient-to-br from-gray-900 to-black border border-white/20 rounded-lg shadow-lg z-50 hover:shadow-xl transition-all duration-300 transform origin-top"
+              >
                 {filteredProducts.length > 0 ? (
-                  filteredProducts.map((product) => (
-                    <Link
+                  filteredProducts.map((product, index) => (
+                    <div
                       key={product._id}
-                      href={`/shop/${product.slug}`}
-                      onClick={() => {
-                        handleSearchResultClick();
-                        setIsMobileMenuOpen(false);
+                      onClick={(e) => handleSearchResultClick(product.slug, e)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          handleSearchResultClick(product.slug, e);
+                          setIsMobileMenuOpen(false);
+                        }
                       }}
-                      className="block px-4 py-2 text-white hover:bg-white/10 hover:shadow-md transition-all duration-200 flex items-center gap-3"
+                      ref={(el) => (searchResultsRef.current[index] = el)}
+                      className={`block px-4 py-2 text-white hover:bg-white/10 hover:shadow-md transition-all duration-200 flex items-center gap-3 cursor-pointer ${
+                        focusedIndex === index ? "bg-white/10" : ""
+                      }`}
+                      tabIndex={0}
                     >
                       <img
                         src={product.images[0]?.url || "https://via.placeholder.com/50x50?text=No+Image"}
@@ -337,12 +393,10 @@ export default function ClientNav() {
                         <p className="text-sm font-medium">{product.title}</p>
                         <p className="text-xs text-gray-400">Tags: {product.tags.join(", ")}</p>
                       </div>
-                    </Link>
+                    </div>
                   ))
                 ) : (
-                  <div className="px-4 py-2 text-gray-400 text-sm">
-                    No results found for "{searchQuery}"
-                  </div>
+                  <div className="px-4 py-2 text-gray-400 text-sm">No results found for "{searchQuery}"</div>
                 )}
               </div>
             )}
@@ -352,7 +406,11 @@ export default function ClientNav() {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className={`fixed top-[92px] left-0 w-full h-auto min-h-fit bg-black z-40 md:hidden transform transition-transform duration-300 ${isMobileMenuOpen ? "translate-y-0" : "translate-y-[-100%]"}`}>
+        <div
+          className={`fixed top-[92px] left-0 w-full h-auto min-h-fit bg-black z-40 md:hidden transform transition-transform duration-300 ${
+            isMobileMenuOpen ? "translate-y-0" : "translate-y-[-100%]"
+          }`}
+        >
           <div className="flex flex-col items-center gap-6 px-4 py-12">
             {/* Shop Link */}
             <Link
@@ -378,12 +436,7 @@ export default function ClientNav() {
                   viewBox="0 0 24 24"
                   stroke="currentColor"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
               {isCategoryOpen && (
