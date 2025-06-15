@@ -1,10 +1,10 @@
 'use client';
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import Categories from "../Components/Home/Categories";
 
-const ShopPage = () => {
+function ShopContent() {
   const [products, setProducts] = useState([]);
   const [category, setCategory] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -130,6 +130,19 @@ const ShopPage = () => {
       </section>
     </main>
   );
-};
+}
 
-export default ShopPage;
+export default function ShopPage() {
+  return (
+    <Suspense fallback={
+      <div className="h-screen flex items-center justify-center bg-black">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-14 w-14 border-t-4 border-b-4 border-gray-200 mx-auto shadow-[0_0_10px_rgba(255,255,255,0.2)]"></div>
+          <p className="text-gray-200 mt-4 uppercase tracking-wide text-base">Loading Shop...</p>
+        </div>
+      </div>
+    }>
+      <ShopContent />
+    </Suspense>
+  );
+}
