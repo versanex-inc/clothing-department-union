@@ -15,6 +15,8 @@ export default function ProductPage() {
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("description");
   const [selectedImage, setSelectedImage] = useState(0);
+  const [relatedProducts, setRelatedProducts] = useState([]);
+  const [relatedLoading, setRelatedLoading] = useState(true);
 
   useEffect(() => {
     if (!slug) return;
@@ -43,6 +45,63 @@ export default function ProductPage() {
 
     fetchProduct();
   }, [slug]);
+
+  useEffect(() => {
+    if (!product) return;
+
+    const fetchRelatedProducts = async () => {
+      try {
+        const res = await fetch("/api/getProducts");
+        const data = await res.json();
+        if (data.products) {
+          // Calculate relevance score for each product
+          const scoredProducts = data.products
+            .filter((p) => p._id !== product._id) // Exclude current product
+            .map((p) => {
+              let score = 0;
+
+              // Category match (exact match = 30 points)
+              if (p.category?.toLowerCase() === product.category?.toLowerCase()) {
+                score += 30;
+              }
+
+              // Tag overlap (10 points per matching tag)
+              const matchingTags = p.tags.filter((tag) =>
+                product.tags.map((t) => t.toLowerCase()).includes(tag.toLowerCase())
+              );
+              score += matchingTags.length * 10;
+
+              // Title similarity (5 points per common word, case-insensitive)
+              const productTitleWords = product.title
+                .toLowerCase()
+                .split(/\s+/)
+                .filter((word) => word.length > 3); // Ignore short words
+              const pTitleWords = p.title
+                .toLowerCase()
+                .split(/\s+/)
+                .filter((word) => word.length > 3);
+              const commonWords = productTitleWords.filter((word) =>
+                pTitleWords.includes(word)
+              );
+              score += commonWords.length * 5;
+
+              return { ...p, relevanceScore: score };
+            })
+            // Sort by relevance score (descending) and take top 4
+            .sort((a, b) => b.relevanceScore - a.relevanceScore)
+            .slice(0, 4);
+
+          setRelatedProducts(scoredProducts);
+        }
+      } catch (err) {
+        console.error("Error fetching related products:", err);
+      } finally {
+        setRelatedLoading(false);
+      }
+    };
+
+    fetchRelatedProducts();
+  }, [product]);
 
   const incrementQuantity = () => {
     setQuantity(prev => prev + 1);
@@ -78,8 +137,7 @@ export default function ProductPage() {
     : 0;
 
   const getColorClass = (color) => {
-    // Return the raw color value from the database (e.g., hex, RGB, or color name)
-    return color || '#000000'; // Fallback to black if color is invalid or undefined
+    return color || '#000000';
   };
 
   const selectedImageUrl = product.images && product.images.length > 0
@@ -193,7 +251,7 @@ export default function ProductPage() {
                       className={`h-8 w-8 rounded-full ${
                         selectedColor === color ? 'ring-2 ring-gray-400' : 'ring-1 ring-gray-600'
                       }`}
-                      style={{ backgroundColor: getColorClass(color) }} // Apply color directly
+                      style={{ backgroundColor: getColorClass(color) }}
                       aria-label={color}
                       onClick={() => setSelectedColor(color)}
                     ></button>
@@ -229,7 +287,7 @@ export default function ProductPage() {
                 <span className="text-gray-200">Discount applied in cart.</span>
               </div>
             )}
-             <div className="flex items-center">
+            <div className="flex items-center">
               <span className="mr-2 flex h-3 w-3 rounded-full bg-gray-200"></span>
               <span className="text-gray-200">Free Home Delivery</span>
             </div>
@@ -294,7 +352,7 @@ export default function ProductPage() {
                       <div className="flex items-center space-x-2">
                         <div 
                           className="h-4 w-4 rounded-full"
-                          style={{ backgroundColor: getColorClass(variant.color) }} // Apply variant color directly
+                          style={{ backgroundColor: getColorClass(variant.color) }}
                         ></div>
                         <span className="text-white">{variant.color}, {variant.size}</span>
                       </div>
@@ -414,7 +472,7 @@ export default function ProductPage() {
                   <span className="text-gray-400">Sizes Available:</span>
                   <span className="text-white">{product.size.join(', ')}</span>
                 </div>
-                 <div className="flex justify-between border-b border-gray-800 pb-2">
+                <div className="flex justify-between border-b border-gray-800 pb-2">
                   <span className="text-gray-400">Care Instructions:</span>
                   <span className="text-white">{product.careInstructions || 'N/A'}</span>
                 </div>
@@ -422,6 +480,57 @@ export default function ProductPage() {
             </div>
           )}
         </div>
+
+        {/* Related Products Section */}
+        <section id="related-products" className="w-full py-12">
+          <div className="max-w-screen-2xl mx-auto px-4 sm:px-6">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-center mb-8 sm:mb-10 uppercase tracking-wider animate-fade-in text-gray-100">
+              Related Products
+            </h2>
+            {relatedLoading ? (
+              <div className="h-64 flex items-center justify-center">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-14 w-14 border-t-4 border-b-4 border-gray-200 mx-auto shadow-[0_0_10px_rgba(255,255,255,0.2)]"></div>
+                  <p className="text-gray-200 mt-4 uppercase tracking-wide text-base">Loading Related Products...</p>
+                </div>
+              </div>
+            ) : relatedProducts.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 justify-items-center">
+                {relatedProducts.map((relatedProduct) => (
+                  <Link
+                    key={relatedProduct._id}
+                    href={`/shop/${relatedProduct.slug}`}
+                    className="group relative bg-gradient-to-br from-gray-900 to-black border border-gray-700 rounded-lg overflow-hidden hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:-translate-y-1 transition-all duration-300 w-full max-w-xs"
+                  >
+                    <div className="w-full h-48 sm:h-72">
+                      <img
+                        src={relatedProduct.images[0]?.url || "https://via.placeholder.com/300x400?text=No+Image"}
+                        alt={relatedProduct.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                    <div className="p-4 text-center">
+                      <h3 className="text-base sm:text-lg font-medium uppercase tracking-tight text-gray-200 group-hover:text-white transition-colors duration-300 line-clamp-2">
+                        {relatedProduct.title}
+                      </h3>
+                      <div className="mt-2 flex justify-center items-center gap-2">
+                        <p className="text-gray-200 text-base font-semibold">PKR {relatedProduct.price}</p>
+                        {relatedProduct.originalPrice > relatedProduct.price && (
+                          <p className="text-gray-500 line-through text-sm">PKR {relatedProduct.originalPrice}</p>
+                        )}
+                      </div>
+                      <div className="mt-3 w-full px-6 py-2 bg-gradient-to-br from-gray-800 to-black border border-gray-700 rounded-full font-medium text-sm text-gray-200 hover:text-white hover:shadow-[0_0_10px_rgba(255,255,255,0.1)] hover:-translate-y-1 transition-all duration-300">
+                        Buy Now
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-200 text-center text-base">No related products found.</p>
+            )}
+          </div>
+        </section>
 
         {product.discount > 0 && (
           <div className="fixed bottom-0 left-0 bg-gradient-to-r from-gray-900 to-black p-4 text-white w-full">

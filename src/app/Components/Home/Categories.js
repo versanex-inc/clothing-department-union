@@ -23,10 +23,10 @@ export default function Categories() {
   }, []); // Empty dependency array ensures this runs once on mount
 
   return (
-    <section id="categories" className="w-full py-12 bg-black text-white">
+    <section id="categories" className="w-full py-10 bg-black text-white">
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-6">
-        <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-center mb-8 sm:mb-10 uppercase tracking-wider animate-fade-in text-gray-100">
-          Discover Our T-Shirt Collections
+        <h2 className="text-1xl sm:text-2xl md:text-3xl font-semibold text-center mb-8 sm:mb-10 uppercase tracking-wider animate-fade-in text-gray-100">
+          Explore Our Premium Quality T-Shirt Collections
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 sm:gap-6">
           {categories.map((category) => (
