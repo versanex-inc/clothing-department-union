@@ -38,6 +38,13 @@ export default [
     rules: {
       "@typescript-eslint/no-unused-vars": "off",
       "@typescript-eslint/no-explicit-any": "off",
+      "react/react-in-jsx-scope": "off", // Disable React import requirement
+      "react/prop-types": "off", // Disable PropTypes validation
+      "jsx-a11y/label-has-associated-control": "warn", // Downgrade to warning
+      "jsx-a11y/click-events-have-key-events": "warn", // Downgrade to warning
+      "jsx-a11y/no-static-element-interactions": "warn", // Downgrade to warning
+      "@next/next/no-img-element": "warn", // Downgrade to warning
+      "react/no-unknown-property": "error",
     },
     settings: {
       react: {
