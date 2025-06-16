@@ -209,6 +209,7 @@ export default function ClientNav() {
                       className={`block px-4 py-2 text-white hover:bg-white/10 hover:shadow-md transition-all duration-200 flex items-center gap-3 cursor-pointer ${
                         focusedIndex === index ? "bg-white/10" : ""
                       }`}
+                      role="button" // FIX: Added role for accessibility
                       tabIndex={0}
                     >
                       <img
@@ -382,6 +383,7 @@ export default function ClientNav() {
                       className={`block px-4 py-2 text-white hover:bg-white/10 hover:shadow-md transition-all duration-200 flex items-center gap-3 cursor-pointer ${
                         focusedIndex === index ? "bg-white/10" : ""
                       }`}
+                      role="button" // FIX: Added role for accessibility
                       tabIndex={0}
                     >
                       <img
