@@ -32,6 +32,26 @@ function ShopContent() {
     }
   }, []);
 
+  // Scroll to products section when searchQuery changes
+  useEffect(() => {
+    if (searchQuery && !isLoading) {
+      const productsSection = document.getElementById("products");
+      if (productsSection) {
+        productsSection.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, [searchQuery, isLoading]);
+
+  // Scroll to products section when category changes
+  useEffect(() => {
+    if (category && !isLoading) {
+      const productsSection = document.getElementById("products");
+      if (productsSection) {
+        productsSection.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, [category, isLoading]);
+
   const handleCategoryClick = (cat) => {
     setCategory(cat);
     window.location.hash = cat;
@@ -124,7 +144,9 @@ function ShopContent() {
               ))}
             </div>
           ) : (
-            <p className="text-gray-200 text-center text-base">No products available.</p>
+            <p className="text-gray-200 text-center text-base">
+              {category ? `No products are currently available for the ${category} category.` : "No products are currently available."}
+            </p>
           )}
         </div>
       </section>
