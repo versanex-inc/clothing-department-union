@@ -11,13 +11,13 @@ export default function ClientNav() {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
-  const [focusedIndex, setFocusedIndex] = useState(-1); // Track focused search result
+  const [focusedIndex, setFocusedIndex] = useState(-1);
   const searchRef = useRef(null);
-  const searchResultsRef = useRef([]); // Ref for search result elements
-  const dropdownRef = useRef(null); // Ref for dropdown container
+  const searchResultsRef = useRef([]);
+  const dropdownRef = useRef(null);
   const router = useRouter();
+  const [isGiveawaysLocked, setIsGiveawaysLocked] = useState(false);
 
-  // Fetch products from API
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -29,9 +29,19 @@ export default function ClientNav() {
       }
     };
     fetchProducts();
+
+    const fetchLockStatus = async () => {
+      try {
+        const res = await fetch("/api/giveawaylock");
+        const data = await res.json();
+        setIsGiveawaysLocked(data.isLocked);
+      } catch (error) {
+        console.error("Error fetching lock status:", error);
+      }
+    };
+    fetchLockStatus();
   }, []);
 
-  // Handle search filtering by title, tags, category, and description
   useEffect(() => {
     if (searchQuery.trim() === "") {
       setFilteredProducts([]);
@@ -50,10 +60,9 @@ export default function ClientNav() {
     );
     setFilteredProducts(filtered);
     setIsSearchDropdownOpen(true);
-    setFocusedIndex(-1); // Reset focus when results change
+    setFocusedIndex(-1);
   }, [searchQuery, products]);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
@@ -65,7 +74,6 @@ export default function ClientNav() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Smooth scroll for anchor links
   useEffect(() => {
     const handleSmoothScroll = (e) => {
       e.preventDefault();
@@ -76,10 +84,7 @@ export default function ClientNav() {
         if (element) {
           const offset = 80;
           const elementPosition = element.getBoundingClientRect().top + window.scrollY;
-          window.scrollTo({
-            top: elementPosition - offset,
-            behavior: "smooth",
-          });
+          window.scrollTo({ top: elementPosition - offset, behavior: "smooth" });
         }
         setIsMobileMenuOpen(false);
       }
@@ -97,76 +102,65 @@ export default function ClientNav() {
   const handleSearchKeyDown = (e) => {
     if (e.key === "Enter" && searchQuery.trim()) {
       if (focusedIndex >= 0 && filteredProducts[focusedIndex]) {
-        // Navigate to the focused product if one is selected
         router.push(`/shop/${filteredProducts[focusedIndex].slug}`);
         setSearchQuery("");
         setIsSearchDropdownOpen(false);
         setIsMobileMenuOpen(false);
         setFocusedIndex(-1);
       } else {
-        // Perform general search if no product is focused
         router.push(`/shop?search=${encodeURIComponent(searchQuery)}`);
         setSearchQuery("");
         setIsSearchDropdownOpen(false);
         setIsMobileMenuOpen(false);
       }
     } else if (e.key === "ArrowDown" && isSearchDropdownOpen && filteredProducts.length > 0) {
-      // Navigate through search results with down arrow
       e.preventDefault();
       const nextIndex = focusedIndex < filteredProducts.length - 1 ? focusedIndex + 1 : 0;
       setFocusedIndex(nextIndex);
       if (searchResultsRef.current[nextIndex]) {
         searchResultsRef.current[nextIndex].focus();
-        searchResultsRef.current[nextIndex].scrollIntoView({
-          behavior: "smooth",
-          block: "nearest",
-        });
+        searchResultsRef.current[nextIndex].scrollIntoView({ behavior: "smooth", block: "nearest" });
       }
     } else if (e.key === "ArrowUp" && isSearchDropdownOpen && filteredProducts.length > 0) {
-      // Navigate through search results with up arrow
       e.preventDefault();
       const prevIndex = focusedIndex > 0 ? focusedIndex - 1 : filteredProducts.length - 1;
       setFocusedIndex(prevIndex);
       if (searchResultsRef.current[prevIndex]) {
         searchResultsRef.current[prevIndex].focus();
-        searchResultsRef.current[prevIndex].scrollIntoView({
-          behavior: "smooth",
-          block: "nearest",
-        });
+        searchResultsRef.current[prevIndex].scrollIntoView({ behavior: "smooth", block: "nearest" });
       }
     } else if (e.key === "Escape") {
-      // Close dropdown on escape
       setIsSearchDropdownOpen(false);
       setFocusedIndex(-1);
     }
   };
 
   const handleSearchResultClick = (slug, e) => {
-    e.stopPropagation(); // Prevent event bubbling
+    e.stopPropagation();
     setIsSearchDropdownOpen(false);
     setSearchQuery("");
     setFocusedIndex(-1);
     setIsMobileMenuOpen(false);
-    router.push(`/shop/${slug}`); // Programmatic navigation
+    router.push(`/shop/${slug}`);
   };
 
   const categories = ["Anime", "Casual", "Trending", "Memes", "Sports"];
 
+  const handleGiveawaysClick = (e) => {
+    if (isGiveawaysLocked) {
+      e.preventDefault();
+      alert("Giveaway coming soon. Please check back later!");
+    }
+  };
+
   return (
     <>
-      {/* Navigation Bar */}
       <nav className="w-full max-w-screen-2xl mx-auto flex justify-between items-center px-4 py-4 fixed top-0 z-50 bg-black border-b border-white/20 shadow-[0_4px_10px_rgba(17,24,39,0.5)] font-sans">
-        {/* Logo */}
-        <Link
-          href="/"
-          className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 hover:scale-105 transition-transform duration-300 hidden md:block"
-        >
+        <Link href="/" className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 hover:scale-105 transition-transform duration-300 hidden md:block">
           CDU
         </Link>
 
-        {/* Desktop Menu */}
         <div className="hidden md:flex items-center space-x-6">
-          {/* Search Bar */}
           <div className="relative" ref={searchRef}>
             <input
               type="text"
@@ -183,12 +177,7 @@ export default function ClientNav() {
               viewBox="0 0 24 24"
               stroke="currentColor"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             {isSearchDropdownOpen && (
               <div
@@ -201,15 +190,11 @@ export default function ClientNav() {
                       key={product._id}
                       onClick={(e) => handleSearchResultClick(product.slug, e)}
                       onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          handleSearchResultClick(product.slug, e);
-                        }
+                        if (e.key === "Enter") handleSearchResultClick(product.slug, e);
                       }}
                       ref={(el) => (searchResultsRef.current[index] = el)}
-                      className={`block px-4 py-2 text-white hover:bg-white/10 hover:shadow-md transition-all duration-200 flex items-center gap-3 cursor-pointer ${
-                        focusedIndex === index ? "bg-white/10" : ""
-                      }`}
-                      role="button" // FIX: Added role for accessibility
+                      className={`block px-4 py-2 text-white hover:bg-white/10 hover:shadow-md transition-all duration-200 flex items-center gap-3 cursor-pointer ${focusedIndex === index ? "bg-white/10" : ""}`}
+                      role="button"
                       tabIndex={0}
                     >
                       <img
@@ -230,7 +215,6 @@ export default function ClientNav() {
             )}
           </div>
 
-          {/* Shop Link */}
           <Link
             href="/shop"
             className="text-white hover:text-gray-300 transition-all duration-300 font-medium text-sm uppercase tracking-widest relative group"
@@ -239,7 +223,6 @@ export default function ClientNav() {
             <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-gray-900 to-white group-hover:w-full transition-all duration-300" />
           </Link>
 
-          {/* Category Dropdown */}
           <div className="relative">
             <Link
               href="#categories"
@@ -274,7 +257,29 @@ export default function ClientNav() {
             )}
           </div>
 
-          {/* WhatsApp Button */}
+          <Link
+            href="/giveaways"
+            onClick={handleGiveawaysClick}
+            className={`text-white hover:text-gray-300 transition-all duration-300 font-medium text-sm uppercase tracking-widest relative group flex items-center ${isGiveawaysLocked ? "opacity-50 cursor-not-allowed" : ""}`}
+          >
+            Giveaways
+            {isGiveawaysLocked && (
+              <svg
+                className="ml-1 w-4 h-4 text-red-500"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 2a4 4 0 00-4 4v1H6a2 2 0 00-2 2v6a2 2 0 002 2h8a2 2 0 002-2V9a2 2 0 00-2-2h-1V6a4 4 0 00-4-4zm0 10a2 2 0 100-4 2 2 0 000 4z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            )}
+            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-gray-900 to-white group-hover:w-full transition-all duration-300" />
+          </Link>
+
           <a
             href="https://wa.me/923457778536?text=Hi%20CDU,%20I%27m%20interested%20in%20your%20t-shirt%20products."
             target="_blank"
@@ -293,14 +298,9 @@ export default function ClientNav() {
           </a>
         </div>
 
-        {/* Mobile Top Bar */}
         <div className="md:hidden flex flex-col items-center w-full">
-          {/* First Row: Logo, WhatsApp, Menu Button */}
           <div className="flex items-center justify-between w-full mb-2">
-            <Link
-              href="/"
-              className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 hover:scale-105 transition-transform duration-300"
-            >
+            <Link href="/" className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 hover:scale-105 transition-transform duration-300">
               CDU
             </Link>
             <div className="flex items-center space-x-2">
@@ -339,7 +339,6 @@ export default function ClientNav() {
               </button>
             </div>
           </div>
-          {/* Second Row: Search Bar */}
           <div className="relative w-full" ref={searchRef}>
             <input
               type="text"
@@ -356,12 +355,7 @@ export default function ClientNav() {
               viewBox="0 0 24 24"
               stroke="currentColor"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             {isSearchDropdownOpen && (
               <div
@@ -380,10 +374,8 @@ export default function ClientNav() {
                         }
                       }}
                       ref={(el) => (searchResultsRef.current[index] = el)}
-                      className={`block px-4 py-2 text-white hover:bg-white/10 hover:shadow-md transition-all duration-200 flex items-center gap-3 cursor-pointer ${
-                        focusedIndex === index ? "bg-white/10" : ""
-                      }`}
-                      role="button" // FIX: Added role for accessibility
+                      className={`block px-4 py-2 text-white hover:bg-white/10 hover:shadow-md transition-all duration-200 flex items-center gap-3 cursor-pointer ${focusedIndex === index ? "bg-white/10" : ""}`}
+                      role="button"
                       tabIndex={0}
                     >
                       <img
@@ -406,15 +398,11 @@ export default function ClientNav() {
         </div>
       </nav>
 
-      {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div
-          className={`fixed top-[92px] left-0 w-full h-auto min-h-fit bg-black z-40 md:hidden transform transition-transform duration-300 ${
-            isMobileMenuOpen ? "translate-y-0" : "translate-y-[-100%]"
-          }`}
+          className={`fixed top-[92px] left-0 w-full h-auto min-h-fit bg-black z-40 md:hidden transform transition-transform duration-300 ${isMobileMenuOpen ? "translate-y-0" : "translate-y-[-100%]"}`}
         >
           <div className="flex flex-col items-center gap-6 px-4 py-12">
-            {/* Shop Link */}
             <Link
               href="/shop"
               className="text-white hover:text-gray-300 transition-all duration-300 font-medium text-lg uppercase tracking-widest relative group"
@@ -424,7 +412,6 @@ export default function ClientNav() {
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-gray-900 to-white group-hover:w-full transition-all duration-300" />
             </Link>
 
-            {/* Category Dropdown (Mobile) */}
             <div className="relative">
               <button
                 onClick={() => setIsCategoryOpen(!isCategoryOpen)}
@@ -462,7 +449,29 @@ export default function ClientNav() {
               )}
             </div>
 
-            {/* WhatsApp Button */}
+            <Link
+              href="/giveaways"
+              onClick={handleGiveawaysClick}
+              className={`text-white hover:text-gray-300 transition-all duration-300 font-medium text-lg uppercase tracking-widest relative group flex items-center ${isGiveawaysLocked ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
+              Giveaways
+              {isGiveawaysLocked && (
+                <svg
+                  className="ml-1 w-4 h-4 text-red-500"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 2a4 4 0 00-4 4v1H6a2 2 0 00-2 2v6a2 2 0 002 2h8a2 2 0 002-2V9a2 2 0 00-2-2h-1V6a4 4 0 00-4-4zm0 10a2 2 0 100-4 2 2 0 000 4z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              )}
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-gray-900 to-white group-hover:w-full transition-all duration-300" />
+            </Link>
+
             <a
               href="https://wa.me/923457778536?text=Hi%20CDU,%20I%27m%20interested%20in%20your%20t-shirt%20products."
               target="_blank"
