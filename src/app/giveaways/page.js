@@ -1,7 +1,7 @@
-// app/giveaways/page.js
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function Giveaways() {
   const [formData, setFormData] = useState({
@@ -15,14 +15,24 @@ export default function Giveaways() {
   const [success, setSuccess] = useState("");
   const [winners, setWinners] = useState([]);
   const [isLocked, setIsLocked] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
-    fetch("/api/giveawaywinners")
-      .then((res) => res.json())
-      .then((data) => setWinners(data));
-    fetch("/api/giveawaylock")
-      .then((res) => res.json())
-      .then((data) => setIsLocked(data.isLocked));
+    const fetchData = async () => {
+      try {
+        const [winnersRes, lockRes] = await Promise.all([
+          fetch("/api/giveawaywinners"),
+          fetch("/api/giveawaylock"),
+        ]);
+        const winnersData = await winnersRes.json();
+        const lockData = await lockRes.json();
+        setWinners(winnersData);
+        setIsLocked(lockData.isLocked);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    fetchData();
   }, []);
 
   const handleChange = (e) => {
@@ -73,6 +83,27 @@ export default function Giveaways() {
       setError("Failed to submit entry.");
     }
   };
+
+  if (isLocked) {
+    return (
+      <section className="w-full min-h-screen py-12 bg-black text-white flex items-center justify-center">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-2xl sm:text-3xl font-serif font-bold mb-6 uppercase tracking-wide text-gray-200">
+            Giveaway Locked
+          </h1>
+          <p className="text-gray-400 text-sm mb-8">
+            The giveaway is Coming soon. Please check back later!
+          </p>
+          <Link
+            href="/"
+            className="inline-block py-2 px-4 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200 text-sm"
+          >
+            Return to Home
+          </Link>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="w-full min-h-screen py-12 bg-black text-white">

@@ -87,16 +87,10 @@ export default function ManageProducts() {
       <main className="relative z-10 p-6 mt-8 container mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-3xl font-bold text-white">
-            <span className="bg-gradient-to-r from-red-600 to-red-800 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r text-white">
               Manage Products
             </span>
           </h2>
-          <button
-            onClick={handleLogout}
-            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-all duration-300"
-          >
-            Logout
-          </button>
         </div>
 
         {/* Add Product Form */}
